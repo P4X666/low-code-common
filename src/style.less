@@ -1,0 +1,169 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.low-code-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: #fafbfc;
+}
+
+// 区域样式
+.editor-area {
+  width: 25%;
+  border-right: 1px solid #eaecf0;
+  overflow-y: auto;
+  border-radius: 8px;
+  margin: 8px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.render-area {
+  width: 45%;
+  background-color: #f9fafb;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.properties-area {
+  width: 18%;
+  border-left: 1px solid #eaecf0;
+  overflow-y: auto;
+  border-radius: 8px;
+  margin: 8px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.config-area {
+  width: 17%;
+  border-left: 1px solid #eaecf0;
+  overflow-y: auto;
+  border-radius: 8px;
+  margin: 8px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+// 组件样式
+.component-item {
+  cursor: move;
+  padding: 12px;
+  margin: 8px;
+  border: 1px solid #eaecf0;
+  border-radius: 8px;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
+  &:hover {
+    background-color: #f9fafb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+}
+
+// Sortable样式
+.sortable {
+  &-ghost {
+    opacity: 0.5;
+  }
+
+  &-chosen {
+    background-color: #e5e7eb;
+  }
+}
+
+.component-list {
+  padding: 10px;
+}
+
+// 预览区样式
+.component-preview-container {
+  width: 100%;
+  max-width: 750px;
+  min-width: 375px;
+  min-height: 667px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+
+// 样式编辑器相关样式
+.style-editor {
+  margin-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 16px;
+
+  .style-section {
+    margin-bottom: 16px;
+
+    h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+  }
+
+  .style-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .color-picker {
+    display: flex;
+    align-items: center;
+
+    input[type="color"] {
+      margin-right: 8px;
+    }
+  }
+
+  .spacing-control {
+    display: flex;
+    flex-direction: column;
+
+    .spacing-inputs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+
+      input {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    .spacing-labels {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      margin-top: 2px;
+
+      span {
+        font-size: 10px;
+        text-align: center;
+        color: #6b7280;
+      }
+    }
+  }
+}
