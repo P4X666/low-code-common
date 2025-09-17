@@ -48,6 +48,8 @@ import Sortable from 'sortablejs';
 import { v4 as uuidv4 } from 'uuid';
 import { useComponentStore } from '../../stores/componentStore';
 import type { TextComponent, ImageComponent, CarouselComponent } from '../../types/component';
+import textIconUrl from '@/assets/images/text-icon.svg';
+import imgIconUrl from '@/assets/images/img-icon.svg';
 
 const componentStore = useComponentStore();
 const components = computed(() => componentStore.components);
@@ -59,7 +61,7 @@ const componentTemplates = [
   { 
     type: 'text', 
     name: '文本组件',
-    icon: 'src/assets/images/text-icon.svg',
+    icon: textIconUrl,
     createDefault: (): TextComponent => ({
       id: uuidv4(),
       type: 'text',
@@ -72,7 +74,7 @@ const componentTemplates = [
   { 
     type: 'image', 
     name: '图片组件',
-    icon: 'src/assets/images/img-icon.svg',
+    icon: imgIconUrl,
     createDefault: (): ImageComponent => ({
       id: uuidv4(),
       type: 'image',
@@ -86,7 +88,7 @@ const componentTemplates = [
   { 
     type: 'carousel', 
     name: '轮播图组件',
-    icon: 'src/assets/images/img-icon.svg',
+    icon: imgIconUrl,
     createDefault: (): CarouselComponent => ({
       id: uuidv4(),
       type: 'carousel',

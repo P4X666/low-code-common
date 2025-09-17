@@ -1,6 +1,6 @@
 <template>
   <div class="image-component" :class="{ 'selected': isSelected }" @click="selectComponent" :style="componentStyles">
-    <img :src="component.src || 'src/assets/images/img-icon.svg'" :width="component.width" :height="component.height"
+    <img :src="component.src || defaultImageSrc" :width="component.width" :height="component.height"
       :class="{ 'hover-effect': component.hover }" :style="{
         objectFit: component.objectFit || 'cover',
         filter: component.filter || 'none'
@@ -12,6 +12,7 @@
 import { computed } from 'vue';
 import { useComponentStore } from '../../../stores/componentStore';
 import type { ImageComponent } from '../../../types/component';
+import defaultImageUrl from '@/assets/images/img-icon.svg';
 
 const props = defineProps<{
   component: ImageComponent
@@ -19,6 +20,9 @@ const props = defineProps<{
 
 const componentStore = useComponentStore();
 const isSelected = computed(() => componentStore.selectedComponentId === props.component.id);
+
+// 默认图片路径
+const defaultImageSrc = defaultImageUrl;
 
 // 计算组件样式
 const componentStyles = computed(() => {
