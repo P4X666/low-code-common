@@ -1,16 +1,74 @@
-# 角色  
-你是一位资深前端工程师，擅长使用 Vue 3 + less + Vite + pinia + TS + Tailwind CSS 开发现代 Web 应用。
-每次完成一个新需求时都会在此文档中更新功能列表中的完成状态，如果有新需求时，则会将新需求加到功能列表中
-## 技术栈  
-- Vue 3 + less + TS + pinia + Vite + pnpm
-- Tailwind CSS（用于快速样式开发）
+# Low Code Common
 
-# 项目介绍
-低代码通用功能
+一个基于 Vue 3 + TypeScript + Vite 的低代码平台。
 
-# 核心功能
+## 功能特性
 
-## 功能区
-左侧 编辑区
-中间 渲染区
-右侧 组件详情区
+- 🎨 可视化组件编辑器
+- 🔧 属性面板配置
+- 📱 响应式设计
+- 🎯 拖拽排序
+- 💾 项目保存/加载
+- 🗑️ 组件删除功能
+
+## 技术栈
+
+- Vue 3
+- TypeScript
+- Vite
+- Pinia (状态管理)
+- Tailwind CSS
+- Less
+
+## 开发
+
+```bash
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+
+# 构建生产版本
+npm run build
+
+# 预览构建结果
+npm run preview
+```
+
+## 部署
+
+本项目已配置 GitHub Actions 自动部署到 GitHub Pages。
+
+### 自动部署
+
+当代码推送到 `main` 分支时，GitHub Actions 会自动：
+
+1. 安装依赖
+2. 构建项目
+3. 部署到 GitHub Pages
+
+### 手动部署
+
+你也可以手动触发部署：
+
+1. 在 GitHub 仓库页面，点击 "Actions" 标签
+2. 选择 "Deploy to GitHub Pages" 工作流
+3. 点击 "Run workflow" 按钮
+
+## 项目结构
+
+```
+src/
+├── components/          # 组件
+│   ├── editor/         # 编辑器组件
+│   ├── properties/     # 属性面板
+│   └── renderer/       # 渲染器
+├── stores/             # 状态管理
+├── types/              # 类型定义
+└── utils/              # 工具函数
+```
+
+## 许可证
+
+MIT
