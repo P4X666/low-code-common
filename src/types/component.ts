@@ -53,9 +53,14 @@ export interface ImageComponent extends ComponentBase {
   filter?: string;
 }
 
+export interface CarouselImage {
+  url: string;
+  link?: string;
+}
+
 export interface CarouselComponent extends ComponentBase {
   type: 'carousel';
-  images: string[];
+  images: CarouselImage[];
   width: number;
   height: number;
   autoplay: boolean;

@@ -1,53 +1,71 @@
 <template>
-  <div 
-    class="carousel-component"
-    :class="{ 'selected': isSelected }"
-    @click="selectComponent"
-    :style="componentStyles"
-  >
-    <div class="carousel-container" :style="{ width: `${component.width}px`, height: `${component.height}px` }">
-      <div class="carousel-inner" :style="{ transform: `translateX(-${currentIndex * 100}%)` }">
-        <div 
-          v-for="(image, index) in component.images" 
-          :key="index" 
-          class="carousel-item"
-        >
-          <a v-if="component.link" :href="component.link" target="_blank">
-            <img :src="image" :alt="`Slide ${index + 1}`" />
-          </a>
-          <img v-else :src="image" :alt="`Slide ${index + 1}`" />
+  <div class="carousel-component" :class="{ 'selected': isSelected }" @click="selectComponent" :style="componentStyles">
+    <div class="relative overflow-hidden">
+      <!-- 轮播图容器 -->
+      <div class="carousel" :style="{ width: `${component.width}px`, height: `${component.height}px` }">
+        <!-- 轮播项容器 -->
+        <div class="carousel-inner">
+          <!-- 轮播项 -->
+          <div 
+            v-for="(image, index) in component.images" 
+            :key="index" 
+            :class="['carousel-item', { 
+              'active': index === activeIndex,
+              'prev': index === (activeIndex - 1 + component.images.length) % component.images.length,
+              'next': index === (activeIndex + 1) % component.images.length
+            }]"
+          >
+            <a v-if="image.link" :href="image.link" target="_blank" class="block w-full h-full">
+              <img :src="image.url" :alt="`Slide ${index + 1}`" class="w-full h-full object-cover" />
+            </a>
+            <img v-else :src="image.url" :alt="`Slide ${index + 1}`" class="w-full h-full object-cover" />
+          </div>
+        </div>
+        
+        <!-- 指示器 -->
+        <div v-if="component.showIndicators !== false && component.images.length > 1" class="carousel-indicators">
+          <button
+            v-for="(image, index) in component.images"
+            :key="index"
+            :class="['indicator', { 'active': index === activeIndex }]"
+            @click.stop="goToSlide(index)"
+            :title="`跳转到第${index + 1}张`"
+          ></button>
+        </div>
+        
+        <!-- 控制按钮 -->
+        <div v-if="component.showControls !== false && component.images.length > 1" class="carousel-control">
+          <button 
+            class="control-btn prev"
+            @click.stop="prevSlide"
+            title="上一张"
+          >
+            &lt;
+          </button>
+          <button 
+            class="control-btn next"
+            @click.stop="nextSlide"
+            title="下一张"
+          >
+            &gt;
+          </button>
         </div>
       </div>
-      
-      <div v-if="component.showIndicators !== false && component.images.length > 1" class="carousel-indicators">
-        <button 
-          v-for="(_, index) in component.images" 
-          :key="index"
-          class="indicator"
-          :class="{ 'active': index === currentIndex }"
-          @click.stop="goToSlide(index)"
-        ></button>
-      </div>
-      
-      <button v-if="component.showControls !== false && component.images.length > 1" class="carousel-control prev" @click.stop="prevSlide">&lt;</button>
-      <button v-if="component.showControls !== false && component.images.length > 1" class="carousel-control next" @click.stop="nextSlide">&gt;</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted, watch } from 'vue';
+import { computed, onMounted, ref, watch, onUnmounted } from 'vue';
 import { useComponentStore } from '../../../stores/componentStore';
 import type { CarouselComponent } from '../../../types/component';
 
 const props = defineProps<{
-  component: CarouselComponent
+  component: CarouselComponent;
 }>();
 
 const componentStore = useComponentStore();
 const isSelected = computed(() => componentStore.selectedComponentId === props.component.id);
-const currentIndex = ref(0);
-let intervalId: number | null = null;
 
 // 计算组件样式
 const componentStyles = computed(() => {
@@ -68,56 +86,60 @@ function selectComponent(event: MouseEvent) {
   componentStore.selectComponent(props.component.id);
 }
 
-function nextSlide() {
-  currentIndex.value = (currentIndex.value + 1) % props.component.images.length;
-}
+// 手动管理轮播图的active状态
+const activeIndex = ref(0);
+let intervalId: number | null = null;
 
-function prevSlide() {
-  currentIndex.value = (currentIndex.value - 1 + props.component.images.length) % props.component.images.length;
-}
+// 监听图片变化，重置active索引
+watch(() => props.component.images, () => {
+  activeIndex.value = 0;
+});
 
-function goToSlide(index: number) {
-  currentIndex.value = index;
-}
+// 监听autoplay和interval变化，重置自动播放
+watch([() => props.component.autoplay, () => props.component.interval], () => {
+  startAutoplay();
+});
 
+// 开始自动播放
 function startAutoplay() {
-  if (props.component.autoplay && props.component.interval > 0) {
-    intervalId = window.setInterval(() => {
-      nextSlide();
-    }, props.component.interval);
-  }
-}
-
-function stopAutoplay() {
-  if (intervalId !== null) {
+  if (intervalId) {
     clearInterval(intervalId);
     intervalId = null;
   }
+  
+  if (props.component.autoplay && props.component.images.length > 1) {
+    // 使用默认值3000ms或配置的值
+    const interval = props.component.interval || 3000;
+    intervalId = window.setInterval(() => {
+      activeIndex.value = (activeIndex.value + 1) % props.component.images.length;
+    }, interval);
+  }
 }
 
-watch(() => props.component.autoplay, (newValue) => {
-  if (newValue) {
-    startAutoplay();
-  } else {
-    stopAutoplay();
-  }
-});
+// 切换到指定索引
+function goToSlide(index: number) {
+  activeIndex.value = index;
+}
 
-watch(() => props.component.interval, () => {
-  if (props.component.autoplay) {
-    stopAutoplay();
-    startAutoplay();
-  }
-});
+// 上一张
+function prevSlide() {
+  activeIndex.value = (activeIndex.value - 1 + props.component.images.length) % props.component.images.length;
+}
+
+// 下一张
+function nextSlide() {
+  activeIndex.value = (activeIndex.value + 1) % props.component.images.length;
+}
 
 onMounted(() => {
-  if (props.component.autoplay) {
-    startAutoplay();
-  }
+  startAutoplay();
 });
 
+// 清理定时器
 onUnmounted(() => {
-  stopAutoplay();
+  if (intervalId) {
+    clearInterval(intervalId);
+  }
 });
 </script>
 
@@ -125,84 +147,110 @@ onUnmounted(() => {
 .carousel-component {
   padding: 8px;
   cursor: pointer;
-  
+
   &.selected {
     outline: 2px solid #3b82f6;
     background-color: rgba(59, 130, 246, 0.1);
   }
 }
 
-.carousel-container {
-  position: relative;
-  overflow: hidden;
+.carousel {
   border-radius: 4px;
-  
-  .carousel-inner {
-    display: flex;
-    transition: transform 0.5s ease;
-    height: 100%;
-    
-    .carousel-item {
-      flex: 0 0 100%;
-      width: 100%;
-      height: 100%;
-      
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-    }
-  }
-  
-  .carousel-indicators {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.carousel-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.carousel-item {
+  position: absolute;
+  inset: 0;
+  transition: all 0.5s ease;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(100%);
+  z-index: 0;
+
+  &.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
     z-index: 2;
-    
-    .indicator {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background-color: rgba(255, 255, 255, 0.5);
-      border: none;
-      padding: 0;
-      cursor: pointer;
-      
-      &.active {
-        background-color: white;
-      }
-    }
   }
-  
-  .carousel-control {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(0, 0, 0, 0.3);
-    color: white;
-    border: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 2;
-    
-    &.prev {
-      left: 10px;
-    }
-    
-    &.next {
-      right: 10px;
-    }
+
+  // 上一个和下一个状态，用于首尾衔接效果
+  &.prev {
+    transform: translateX(-100%);
+    z-index: 1;
   }
+
+  &.next {
+    transform: translateX(100%);
+    z-index: 1;
+  }
+}
+
+/* 指示器样式 */
+.carousel-indicators {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &.active {
+    background-color: white;
+  }
+}
+
+/* 控制按钮样式 */
+.carousel-control {
+  position: relative;
+}
+
+.control-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+}
+
+.carousel:hover .control-btn {
+  opacity: 1;
+}
+
+.control-btn.prev {
+  left: 10px;
+}
+
+.control-btn.next {
+  right: 10px;
 }
 </style>

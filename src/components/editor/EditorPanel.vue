@@ -1,6 +1,6 @@
 <template>
   <div class="p-4">
-    <h2 class="text-xl font-bold mb-4">组件库</h2>
+    <h2 class="text-xl font-bold mb-4">基础组件库</h2>
     <div class="component-list flex justify-between flex-wrap">
       <div 
         v-for="item in componentTemplates" 
@@ -80,7 +80,7 @@ const componentTemplates = [
       type: 'image',
       name: '图片组件',
       src: '',
-      width: 300,
+      width: 750,
       height: 200,
       hover: false,
     })
@@ -89,15 +89,17 @@ const componentTemplates = [
     type: 'carousel', 
     name: '轮播图组件',
     icon: imgIconUrl,
-    createDefault: (): CarouselComponent => ({
-      id: uuidv4(),
-      type: 'carousel',
-      name: '轮播图组件',
-      images: [],
-      width: 300,
-      height: 200,
-      autoplay: true,
-      interval: 3000,
+    createDefault: (): CarouselComponent => ({ 
+      id: uuidv4(), 
+      type: 'carousel', 
+      name: '轮播图组件', 
+      images: [{ url: 'https://picsum.photos/600/400?random=1' }], 
+      width: 750, 
+      height: 200, 
+      autoplay: true, 
+      interval: 3000, 
+      showIndicators: true, 
+      showControls: true 
     })
   }
 ];

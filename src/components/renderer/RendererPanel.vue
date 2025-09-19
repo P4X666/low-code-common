@@ -118,22 +118,24 @@ function onDrop(event: DragEvent) {
           type: 'image',
           name: '图片组件',
           src: '',
-          width: 300,
+          width: 750,
           height: 200,
           hover: false
         })
       },
-      {
-        type: 'carousel', createDefault: () => ({
+      {        
+        type: 'carousel', createDefault: () => ({        
           id: crypto.randomUUID(),
           type: 'carousel',
           name: '轮播图组件',
-          images: [],
-          width: 300,
+          images: [{ url: 'https://picsum.photos/600/400?random=1' }],
+          width: 750,
           height: 200,
           autoplay: true,
-          interval: 3000
-        })
+          interval: 3000,
+          showIndicators: true,
+          showControls: true
+        })      
       }
     ].find(t => t.type === componentType);
 

@@ -42,7 +42,7 @@
           />
         </div>
         
-        <div class="mb-2">
+        <div v-if="selectedComponent.type !== 'carousel'" class="mb-2">
           <label class="block text-sm font-medium mb-1">链接</label>
           <input 
             type="text" 
@@ -193,16 +193,6 @@
       <div v-if="selectedComponent.type === 'carousel'" class="mb-4">
         <h3 class="text-lg font-medium mb-2">轮播图属性</h3>
         
-        <div class="mb-2">
-          <label class="block text-sm font-medium mb-1">图片列表 (每行一个URL)</label>
-          <textarea 
-            v-model="carouselImages" 
-            class="w-full px-3 py-2 border rounded"
-            rows="4"
-            @change="updateCarouselImages"
-          ></textarea>
-        </div>
-        
         <div class="grid grid-cols-2 gap-2 mb-2">
           <div>
             <label class="block text-sm font-medium mb-1">宽度</label>
@@ -224,50 +214,99 @@
           </div>
         </div>
         
-        <div class="mb-2">
-          <label class="flex items-center">
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <div>
+            <label class="flex items-center">
+              <input 
+                type="checkbox" 
+                v-model="selectedComponent.autoplay" 
+                class="mr-2"
+                @change="updateComponent"
+              />
+              <span class="text-sm font-medium">自动播放</span>
+            </label>
+          </div>
+          <div v-if="selectedComponent.autoplay">
+            <label class="block text-sm font-medium mb-1">播放间隔(ms)</label>
             <input 
-              type="checkbox" 
-              v-model="selectedComponent.autoplay" 
-              class="mr-2"
+              type="number" 
+              v-model="selectedComponent.interval" 
+              class="w-full px-3 py-2 border rounded"
+              min="1000"
               @change="updateComponent"
             />
-            <span class="text-sm font-medium">自动播放</span>
-          </label>
+          </div>
         </div>
         
-        <div v-if="selectedComponent.autoplay" class="mb-2">
-          <label class="block text-sm font-medium mb-1">播放间隔 (毫秒)</label>
-          <input 
-            type="number" 
-            v-model="selectedComponent.interval" 
-            class="w-full px-3 py-2 border rounded"
-            @change="updateComponent"
-          />
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <div>
+            <label class="flex items-center">
+              <input 
+                type="checkbox" 
+                v-model="selectedComponent.showIndicators"
+                class="mr-2"
+                @change="updateComponent"
+              />
+              <span class="text-sm font-medium">显示指示器</span>
+            </label>
+          </div>
+          <div>
+            <label class="flex items-center">
+              <input 
+                type="checkbox" 
+                v-model="selectedComponent.showControls"
+                class="mr-2"
+                @change="updateComponent"
+              />
+              <span class="text-sm font-medium">显示控制按钮</span>
+            </label>
+          </div>
         </div>
         
-        <div class="mb-2">
-          <label class="flex items-center">
-            <input 
-              type="checkbox" 
-              v-model="selectedComponent.showIndicators" 
-              class="mr-2"
-              @change="updateComponent"
-            />
-            <span class="text-sm font-medium">显示指示器</span>
-          </label>
-        </div>
-        
-        <div class="mb-2">
-          <label class="flex items-center">
-            <input 
-              type="checkbox" 
-              v-model="selectedComponent.showControls" 
-              class="mr-2"
-              @change="updateComponent"
-            />
-            <span class="text-sm font-medium">显示控制按钮</span>
-          </label>
+        <!-- 图片列表管理 -->
+        <div class="mt-4">
+          <h4 class="text-sm font-medium mb-2">图片列表</h4>
+          <div v-if="selectedComponent.images.length === 0" class="text-gray-500 text-sm mb-2">
+            暂无图片，请点击下方按钮添加
+          </div>
+          <div v-else>
+            <div v-for="(image, index) in selectedComponent.images" :key="index" class="mb-3 p-2 border rounded bg-gray-50">
+              <div class="grid grid-cols-1 gap-2">
+                <div>
+                  <label class="block text-xs font-medium mb-1">图片URL</label>
+                  <input 
+                    type="text" 
+                    v-model="image.url" 
+                    class="w-full px-2 py-1 text-sm border rounded"
+                    placeholder="请输入图片URL"
+                    @change="updateComponent"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium mb-1">跳转链接 (可选)</label>
+                  <input 
+                    type="text" 
+                    v-model="image.link" 
+                    class="w-full px-2 py-1 text-sm border rounded"
+                    placeholder="请输入跳转链接"
+                    @change="updateComponent"
+                  />
+                </div>
+                <button 
+                  class="text-xs text-red-500 hover:text-red-700 self-end"
+                  @click.stop="removeCarouselImage(index)"
+                >
+                  删除此图片
+                </button>
+              </div>
+            </div>
+          </div>
+          <button 
+            class="mt-2 text-sm text-blue-500 hover:text-blue-700"
+            @click="addCarouselImage"
+          >
+            + 添加图片
+          </button>
         </div>
         
         <div class="mb-2">
@@ -318,9 +357,6 @@ watch(selectedComponent, (newComponent) => {
   if (newComponent) {
     customId.value = newComponent.customId || '';
     customName.value = newComponent.customName || '';
-    if (newComponent.type === 'carousel') {
-      carouselImages.value = newComponent.images.join('\n');
-    }
   } else {
     customId.value = '';
     customName.value = '';
@@ -364,25 +400,34 @@ function updateCustomName() {
   }
 }
 
-// 轮播图图片列表处理
-const carouselImages = ref('');
-
 function updateComponent() {
   if (selectedComponent.value) {
     componentStore.updateComponent(selectedComponent.value.id, selectedComponent.value);
   }
 }
 
-function updateCarouselImages() {
+// 添加轮播图图片
+function addCarouselImage() {
   if (selectedComponent.value && selectedComponent.value.type === 'carousel') {
-    const images = carouselImages.value
-      .split('\n')
-      .map(url => url.trim())
-      .filter(url => url.length > 0);
+    const newImages = [...selectedComponent.value.images];
+    newImages.push({ url: '' });
     
     componentStore.updateComponent(selectedComponent.value.id, {
       ...selectedComponent.value,
-      images
+      images: newImages
+    });
+  }
+}
+
+// 删除轮播图图片
+function removeCarouselImage(index: number) {
+  if (selectedComponent.value && selectedComponent.value.type === 'carousel') {
+    const newImages = [...selectedComponent.value.images];
+    newImages.splice(index, 1);
+    
+    componentStore.updateComponent(selectedComponent.value.id, {
+      ...selectedComponent.value,
+      images: newImages
     });
   }
 }
