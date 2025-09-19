@@ -61,6 +61,10 @@ import { useComponentStore } from '../../stores/componentStore';
 import TextRenderer from './components/TextRenderer.vue';
 import ImageRenderer from './components/ImageRenderer.vue';
 import CarouselRenderer from './components/CarouselRenderer.vue';
+import BannerRenderer from './components/BannerRenderer.vue';
+import CategoryRenderer from './components/CategoryRenderer.vue';
+import ProductRankRenderer from './components/ProductRankRenderer.vue';
+import ProductGroupRenderer from './components/ProductGroupRenderer.vue';
 
 const componentStore = useComponentStore();
 const components = computed(() => componentStore.components);
@@ -93,6 +97,14 @@ function getComponentByType(type: string) {
       return ImageRenderer;
     case 'carousel':
       return CarouselRenderer;
+    case 'banner':
+      return BannerRenderer;
+    case 'category':
+      return CategoryRenderer;
+    case 'productRank':
+      return ProductRankRenderer;
+    case 'productGroup':
+      return ProductGroupRenderer;
     default:
       return null;
   }
@@ -124,7 +136,7 @@ function onDrop(event: DragEvent) {
         })
       },
       {        
-        type: 'carousel', createDefault: () => ({        
+        type: 'carousel', createDefault: () => ({
           id: crypto.randomUUID(),
           type: 'carousel',
           name: '轮播图组件',
@@ -135,7 +147,80 @@ function onDrop(event: DragEvent) {
           interval: 3000,
           showIndicators: true,
           showControls: true
-        })      
+        })
+      },
+      {        
+        type: 'banner', createDefault: () => ({
+          id: crypto.randomUUID(),
+          type: 'banner',
+          name: 'Banner组件',
+          title: 'Banner标题',
+          images: [{ url: 'https://picsum.photos/750/200?random=10', link: '#' }],
+          width: 750,
+          height: 200
+        })
+      },
+      {
+        type: 'category', createDefault: () => ({
+          id: crypto.randomUUID(),
+          type: 'category',
+          name: '热门类目组件',
+          title: '热门类目',
+          bigImage: { url: 'https://picsum.photos/300/300?random=11', link: '#' },
+          smallImages: [
+            { url: 'https://picsum.photos/100/100?random=12', link: '#', text: '类目1' },
+            { url: 'https://picsum.photos/100/100?random=13', link: '#', text: '类目2' },
+            { url: 'https://picsum.photos/100/100?random=14', link: '#', text: '类目3' },
+            { url: 'https://picsum.photos/100/100?random=15', link: '#', text: '类目4' },
+            { url: 'https://picsum.photos/100/100?random=16', link: '#', text: '类目5' },
+            { url: 'https://picsum.photos/100/100?random=17', link: '#', text: '类目6' }
+          ],
+          width: 750,
+          height: 300
+        })
+      },
+      {
+        type: 'productRank', createDefault: () => ({
+          id: crypto.randomUUID(),
+          type: 'productRank',
+          name: '商品排行组件',
+          title: '商品排行榜',
+          subtitle: '热门商品推荐',
+          dataSource: 'ranking',
+          buttonText: '查看全部',
+          buttonLink: '#',
+          width: 750,
+          height: 350
+        })
+      },
+      {
+        type: 'productGroup', createDefault: () => ({
+          id: crypto.randomUUID(),
+          type: 'productGroup',
+          name: '商品分组组件',
+          title: '商品分类',
+          groups: [
+            {
+              title: '分类一',
+              images: [
+                { url: 'https://picsum.photos/200/200?random=18', link: '#' },
+                { url: 'https://picsum.photos/200/200?random=19', link: '#' },
+                { url: 'https://picsum.photos/200/200?random=20', link: '#' }
+              ]
+            },
+            {
+              title: '分类二',
+              images: [
+                { url: 'https://picsum.photos/200/200?random=21', link: '#' },
+                { url: 'https://picsum.photos/200/200?random=22', link: '#' }
+              ]
+            }
+          ],
+          buttonText: '全部商品',
+          buttonLink: '#',
+          width: 750,
+          height: 400
+        })
       }
     ].find(t => t.type === componentType);
 

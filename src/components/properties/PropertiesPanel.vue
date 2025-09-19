@@ -322,6 +322,303 @@
         </div>
       </div>
       
+      <!-- Banner组件特有属性 -->
+      <div v-if="selectedComponent.type === 'banner'" class="mb-4">
+        <h3 class="text-lg font-medium mb-2">Banner属性</h3>
+        
+        <div class="mb-2">
+          <label class="block text-sm font-medium mb-1">标题</label>
+          <input 
+            type="text" 
+            v-model="selectedComponent.title" 
+            class="w-full px-3 py-2 border rounded"
+            @change="updateComponent"
+          />
+        </div>
+        
+        <div class="mb-2">
+          <label class="block text-sm font-medium mb-1">图片地址</label>
+          <input 
+            type="text" 
+            v-model="selectedComponent.images[0].url"
+            class="w-full px-3 py-2 border rounded"
+            @change="updateComponent"
+          />
+        </div>
+        
+        <div class="mb-2">
+          <label class="block text-sm font-medium mb-1">跳转链接</label>
+          <input 
+            type="text" 
+            v-model="selectedComponent.link" 
+            class="w-full px-3 py-2 border rounded"
+            @change="updateComponent"
+          />
+        </div>
+
+      </div>
+      
+      <!-- 热门类目组件特有属性 -->
+      <div v-if="selectedComponent.type === 'category'" class="mb-4">
+        <h3 class="text-lg font-medium mb-2">热门类目属性</h3>
+        
+        <div class="mb-2">
+          <label class="block text-sm font-medium mb-1">标题</label>
+          <input 
+            type="text" 
+            v-model="selectedComponent.title" 
+            class="w-full px-3 py-2 border rounded"
+            @change="updateComponent"
+          />
+        </div>
+        
+        <div class="mb-2">
+          <label class="block text-sm font-medium mb-1">大图地址</label>
+          <input 
+            type="text" 
+            v-model="(selectedComponent as any).bigImage.url" 
+            class="w-full px-3 py-2 border rounded"
+            @change="updateComponent"
+          />
+        </div>
+        
+        <div class="mb-2">
+          <label class="block text-sm font-medium mb-1">大图链接</label>
+          <input 
+            type="text" 
+            v-model="(selectedComponent as any).bigImage.link" 
+            class="w-full px-3 py-2 border rounded"
+            @change="updateComponent"
+          />
+        </div>
+        
+        <!-- 小图列表管理 -->
+        <div class="mt-4">
+          <h4 class="text-sm font-medium mb-2">小图列表</h4>
+          <div v-if="selectedComponent.smallImages.length === 0" class="text-gray-500 text-sm mb-2">
+            暂无小图，请点击下方按钮添加
+          </div>
+          <div v-else>
+            <div v-for="(image, index) in selectedComponent.smallImages" :key="index" class="mb-3 p-2 border rounded bg-gray-50">
+              <div class="grid grid-cols-1 gap-2">
+                <div>
+                  <label class="block text-xs font-medium mb-1">图片URL</label>
+                  <input 
+                    type="text" 
+                    v-model="image.url" 
+                    class="w-full px-2 py-1 text-sm border rounded"
+                    placeholder="请输入图片URL"
+                    @change="updateComponent"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium mb-1">跳转链接</label>
+                  <input 
+                    type="text" 
+                    v-model="image.link" 
+                    class="w-full px-2 py-1 text-sm border rounded"
+                    placeholder="请输入跳转链接"
+                    @change="updateComponent"
+                  />
+                </div>
+                <button 
+                  class="text-xs text-red-500 hover:text-red-700 self-end"
+                  @click.stop="removeSmallImage(index)"
+                >
+                  删除此图片
+                </button>
+              </div>
+            </div>
+          </div>
+          <button 
+            v-if="selectedComponent.smallImages.length < 6"
+            class="mt-2 text-sm text-blue-500 hover:text-blue-700"
+            @click="addSmallImage"
+          >
+            + 添加图片
+          </button>
+          <p v-else class="mt-2 text-xs text-gray-500">最多添加6张小图</p>
+        </div>
+
+      </div>
+      
+      <!-- 商品排行组件特有属性 -->
+      <div v-if="selectedComponent.type === 'productRank'" class="mb-4">
+        <h3 class="text-lg font-medium mb-2">商品排行属性</h3>
+        
+        <div class="mb-2">
+          <label class="block text-sm font-medium mb-1">标题</label>
+          <input 
+            type="text" 
+            v-model="selectedComponent.title" 
+            class="w-full px-3 py-2 border rounded"
+            @change="updateComponent"
+          />
+        </div>
+        
+        <div class="mb-2">
+          <label class="block text-sm font-medium mb-1">小标题</label>
+          <input 
+            type="text" 
+            v-model="selectedComponent.subtitle" 
+            class="w-full px-3 py-2 border rounded"
+            @change="updateComponent"
+          />
+        </div>
+        
+        <div class="mb-2">
+          <label class="block text-sm font-medium mb-1">数据来源</label>
+          <select 
+            v-model="selectedComponent.dataSource" 
+            class="w-full px-3 py-2 border rounded"
+            @change="updateComponent"
+          >
+            <option value="ranking">排行榜</option>
+            <option value="hotSale">热卖榜</option>
+          </select>
+        </div>
+        
+        <div class="mb-2">
+          <label class="block text-sm font-medium mb-1">底部按钮文本</label>
+          <input 
+            type="text" 
+            v-model="selectedComponent.buttonText" 
+            class="w-full px-3 py-2 border rounded"
+            @change="updateComponent"
+          />
+        </div>
+        
+        <div class="mb-2">
+          <label class="block text-sm font-medium mb-1">底部按钮链接</label>
+          <input 
+            type="text" 
+            v-model="selectedComponent.buttonLink" 
+            class="w-full px-3 py-2 border rounded"
+            @change="updateComponent"
+          />
+        </div>
+        
+      </div>
+      
+      <!-- 商品分组组件特有属性 -->
+      <div v-if="selectedComponent.type === 'productGroup'" class="mb-4">
+        <h3 class="text-lg font-medium mb-2">商品分组属性</h3>
+        
+        <div class="mb-2">
+          <label class="block text-sm font-medium mb-1">标题</label>
+          <input 
+            type="text" 
+            v-model="selectedComponent.title" 
+            class="w-full px-3 py-2 border rounded"
+            @change="updateComponent"
+          />
+        </div>
+        
+        <!-- 分组列表管理 -->
+        <div class="mt-4">
+          <h4 class="text-sm font-medium mb-2">分组列表</h4>
+          <div v-if="selectedComponent.groups.length === 0" class="text-gray-500 text-sm mb-2">
+            暂无分组，请点击下方按钮添加
+          </div>
+          <div v-else>
+            <div v-for="(group, groupIndex) in selectedComponent.groups" :key="groupIndex" class="mb-4 p-3 border rounded bg-gray-50">
+              <div class="grid grid-cols-1 gap-3">
+                <div>
+                  <label class="block text-xs font-medium mb-1">分组标题</label>
+                  <input 
+                    type="text" 
+                    v-model="group.title" 
+                    class="w-full px-2 py-1 text-sm border rounded"
+                    placeholder="请输入分组标题"
+                    @change="updateComponent"
+                  />
+                </div>
+                
+                <!-- 分组图片列表 -->
+                <div>
+                  <label class="block text-xs font-medium mb-1">分组图片 (最多7张)</label>
+                  <div v-if="group.images.length === 0" class="text-gray-400 text-xs mb-2">
+                    暂无图片，请点击下方按钮添加
+                  </div>
+                  <div v-else>
+                    <div v-for="(image, imageIndex) in group.images.slice(0, 7)" :key="imageIndex" class="mb-2">
+                      <div class="grid grid-cols-1 gap-1">
+                        <div>
+                          <label class="block text-xs font-medium mb-1">图片URL</label>
+                          <input 
+                            type="text" 
+                            v-model="image.url" 
+                            class="w-full px-2 py-1 text-xs border rounded"
+                            placeholder="请输入图片URL"
+                            @change="updateComponent"
+                          />
+                        </div>
+                        <div>
+                          <label class="block text-xs font-medium mb-1">跳转链接</label>
+                          <input 
+                            type="text" 
+                            v-model="image.link" 
+                            class="w-full px-2 py-1 text-xs border rounded"
+                            placeholder="请输入跳转链接"
+                            @change="updateComponent"
+                          />
+                        </div>
+                        <button 
+                          class="text-xs text-red-500 hover:text-red-700 self-end"
+                          @click.stop="removeGroupImage(groupIndex, imageIndex)"
+                        >
+                          删除此图片
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <button 
+                    v-if="group.images.length < 7"
+                    class="mt-1 text-xs text-blue-500 hover:text-blue-700"
+                    @click.stop="addGroupImage(groupIndex)"
+                  >
+                    + 添加图片
+                  </button>
+                </div>
+                
+                <button 
+                  class="text-xs text-red-500 hover:text-red-700 self-end"
+                  @click.stop="removeGroup(groupIndex)"
+                >
+                  删除此分组
+                </button>
+              </div>
+            </div>
+          </div>
+          <button 
+            class="mt-2 text-sm text-blue-500 hover:text-blue-700"
+            @click="addGroup"
+          >
+            + 添加分组
+          </button>
+        </div>
+        
+        <div class="mb-2 mt-4">
+          <label class="block text-sm font-medium mb-1">底部按钮文本</label>
+          <input 
+            type="text" 
+            v-model="selectedComponent.buttonText" 
+            class="w-full px-3 py-2 border rounded"
+            @change="updateComponent"
+          />
+        </div>
+        
+        <div class="mb-2">
+          <label class="block text-sm font-medium mb-1">底部按钮链接</label>
+          <input 
+            type="text" 
+            v-model="selectedComponent.buttonLink" 
+            class="w-full px-3 py-2 border rounded"
+            @change="updateComponent"
+          />
+        </div>
+      </div>
+      
       <!-- 样式编辑器 -->
       <StyleEditor 
         v-if="selectedComponent" 
@@ -338,7 +635,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useComponentStore } from '../../stores/componentStore';
-import type { Component } from '../../types/component';
+import type { Component, BannerComponent , CategoryComponent, ProductRankComponent, ProductGroupComponent } from '../../types/component';
 import StyleEditor from './StyleEditor.vue';
 
 const componentStore = useComponentStore();
@@ -429,6 +726,88 @@ function removeCarouselImage(index: number) {
       ...selectedComponent.value,
       images: newImages
     });
+  }
+}
+
+// 添加热门类目小图
+function addSmallImage() {
+  if (selectedComponent.value && selectedComponent.value.type === 'category' && selectedComponent.value.smallImages.length < 6) {
+    const newImages = [...selectedComponent.value.smallImages];
+    newImages.push({ url: '', link: '#' });
+    
+    componentStore.updateComponent(selectedComponent.value.id, {
+      ...selectedComponent.value,
+      smallImages: newImages
+    });
+  }
+}
+
+// 删除热门类目小图
+function removeSmallImage(index: number) {
+  if (selectedComponent.value && selectedComponent.value.type === 'category') {
+    const newImages = [...selectedComponent.value.smallImages];
+    newImages.splice(index, 1);
+    
+    componentStore.updateComponent(selectedComponent.value.id, {
+      ...selectedComponent.value,
+      smallImages: newImages
+    });
+  }
+}
+
+// 添加商品分组
+function addGroup() {
+  if (selectedComponent.value && selectedComponent.value.type === 'productGroup') {
+    const newGroups = [...selectedComponent.value.groups];
+    newGroups.push({ title: '新分组', images: [] });
+    
+    componentStore.updateComponent(selectedComponent.value.id, {
+      ...selectedComponent.value,
+      groups: newGroups
+    });
+  }
+}
+
+// 删除商品分组
+function removeGroup(index: number) {
+  if (selectedComponent.value && selectedComponent.value.type === 'productGroup') {
+    const newGroups = [...selectedComponent.value.groups];
+    newGroups.splice(index, 1);
+    
+    componentStore.updateComponent(selectedComponent.value.id, {
+      ...selectedComponent.value,
+      groups: newGroups
+    });
+  }
+}
+
+// 添加分组图片
+function addGroupImage(groupIndex: number) {
+  if (selectedComponent.value && selectedComponent.value.type === 'productGroup') {
+    const newGroups = JSON.parse(JSON.stringify(selectedComponent.value.groups));
+    if (newGroups[groupIndex] && newGroups[groupIndex].images.length < 7) {
+      newGroups[groupIndex].images.push({ url: '', link: '#' });
+      
+      componentStore.updateComponent(selectedComponent.value.id, {
+        ...selectedComponent.value,
+        groups: newGroups
+      });
+    }
+  }
+}
+
+// 删除分组图片
+function removeGroupImage(groupIndex: number, imageIndex: number) {
+  if (selectedComponent.value && selectedComponent.value.type === 'productGroup') {
+    const newGroups = JSON.parse(JSON.stringify(selectedComponent.value.groups));
+    if (newGroups[groupIndex] && newGroups[groupIndex].images) {
+      newGroups[groupIndex].images.splice(imageIndex, 1);
+      
+      componentStore.updateComponent(selectedComponent.value.id, {
+        ...selectedComponent.value,
+        groups: newGroups
+      });
+    }
   }
 }
 </script>

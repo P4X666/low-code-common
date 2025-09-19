@@ -23,7 +23,7 @@ export interface StyleProperties {
 
 export interface ComponentBase {
   id: string;
-  type: 'text' | 'image' | 'carousel';
+  type: 'text' | 'image' | 'carousel' | 'banner' | 'category' | 'productRank' | 'productGroup';
   name: string;
   customId?: string; // 用户自定义ID
   customName?: string; // 用户自定义名称
@@ -70,4 +70,66 @@ export interface CarouselComponent extends ComponentBase {
   transitionEffect?: 'slide' | 'fade';
 }
 
-export type Component = TextComponent | ImageComponent | CarouselComponent;
+// 公共业务组件属性接口
+export interface BusinessComponentBase extends ComponentBase {
+  title: string;
+  startDate?: string;
+  endDate?: string;
+  images?: {
+    url: string;
+    link?: string;
+    text?: string;
+  }[];
+}
+
+// Banner组件
+export interface BannerComponent extends BusinessComponentBase {
+  type: 'banner';
+  images: {
+    url: string;
+    link?: string;
+    text?: string;
+  }[];
+}
+
+// 热门类目组件
+export interface CategoryComponent extends BusinessComponentBase {
+  type: 'category';
+  bigImage?: {
+    url: string;
+    link?: string;
+  };
+  smallImages: {
+    url: string;
+    link?: string;
+    text?: string;
+  }[];
+}
+
+// 商品排行组件
+export interface ProductRankComponent extends BusinessComponentBase {
+  type: 'productRank';
+  dataSource: 'ranking' | 'hotSale';
+  subtitle?: string;
+  buttonText?: string;
+  buttonLink?: string;
+}
+
+// 商品分组组件
+export interface ProductGroupComponent extends BusinessComponentBase {
+  type: 'productGroup';
+  groups: {
+    title: string;
+    images: {
+      url: string;
+      link?: string;
+    }[];
+  }[];
+  buttonText?: string;
+  buttonLink?: string;
+}
+
+export type BaseComponent = TextComponent | ImageComponent | CarouselComponent
+export type BusinessComponent = BannerComponent | CategoryComponent | ProductRankComponent | ProductGroupComponent;
+
+export type Component = BaseComponent | BusinessComponent;
