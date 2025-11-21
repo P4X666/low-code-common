@@ -1,56 +1,78 @@
 <template>
-  <div class="p-4">
-    <h2 class="text-xl font-bold mb-4">基础组件库</h2>
-    <div class="component-list flex justify-between flex-wrap">
-      <div 
-        v-for="item in baseComponentTemplates" 
-        :key="item.type"
-        class="component-item"
-        draggable="true"
-        @dragstart="onDragStart($event, item)"
-      >
-        <img :src="item.icon" alt="组件图标" class="w-4 h-4 mr-2">
-        {{ item.name }}
+  <div class="p-4 bg-gray-50 min-h-full space-y-6">
+    <!-- 基础组件库分组 -->
+    <div class="component-group">
+      <div class="group-header mb-4">
+        <h2 class="text-xl font-bold text-gray-800 border-l-4 border-blue-500 pl-3 inline-flex items-center">
+          基础组件库
+          <span class="ml-2 text-sm font-normal text-blue-500">{{ baseComponentTemplates.length }} 个组件</span>
+        </h2>
       </div>
-    </div>
-    <h2 class="text-xl font-bold mb-4">业务组件库</h2>
-    <div class="component-list flex justify-between flex-wrap">
-      <div 
-        v-for="item in advanceComponentTemplates" 
-        :key="item.type"
-        class="component-item"
-        draggable="true"
-        @dragstart="onDragStart($event, item)"
-      >
-        <img :src="item.icon" alt="组件图标" class="w-4 h-4 mr-2">
-        {{ item.name }}
-      </div>
-    </div>
-    
-    <h3 class="text-lg font-bold mt-6 mb-2">组件顺序</h3>
-    <div ref="sortableList" class="component-order-list border rounded p-2 min-h-[100px]">
-      <div 
-          v-for="component in components" 
-          :key="component.id"
-          :data-component-id="component.id"
-          class="component-order-item p-2 mb-2 bg-gray-50 rounded cursor-move hover:bg-gray-100 transition-colors"
-          :class="{ 'bg-blue-100 hover:bg-blue-200': component.id === selectedComponentId }"
-          @click="selectComponent(component.id)"
-        >
-        <div class="flex items-center justify-between">
-          <div class="flex items-center">
-            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
-            </svg>
-            <span class="font-medium">{{ component.customName || component.name }}</span>
-          </div>
-          <div class="text-xs text-gray-500">
-            {{ component.customId || component.id.slice(0, 8) }}
+      <div class="component-list-container bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div class="component-list flex flex-wrap gap-3 justify-start">
+          <div v-for="item in baseComponentTemplates" :key="item.type"
+            class="component-item bg-white border border-gray-100 rounded-lg p-3 flex items-center cursor-pointer hover:border-blue-400 hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 flex-1 min-w-[160px]"
+            draggable="true" @dragstart="onDragStart($event, item)" @drag="onDrag($event)" @dragend="onDragEnd($event)">
+            <div :class="getIconClass(item.type)" class="w-8 h-8 flex items-center justify-center rounded-full mr-3">
+              <img :src="item.icon" alt="组件图标" class="w-5 h-5">
+            </div>
+            {{ item.name }}
           </div>
         </div>
       </div>
-      <div v-if="components.length === 0" class="text-gray-400 text-center py-4">
-        暂无组件，请从上方拖拽添加
+    </div>
+
+    <!-- 业务组件库分组 -->
+    <div class="component-group">
+      <div class="group-header mb-4">
+        <h2 class="text-xl font-bold text-gray-800 border-l-4 border-green-500 pl-3 inline-flex items-center">
+          业务组件库
+          <span class="ml-2 text-sm font-normal text-green-500">{{ advanceComponentTemplates.length }} 个组件</span>
+        </h2>
+      </div>
+      <div class="component-list-container bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div class="component-list flex flex-wrap gap-3 justify-start">
+          <div v-for="item in advanceComponentTemplates" :key="item.type"
+            class="component-item bg-white border border-gray-100 rounded-lg p-3 flex items-center cursor-pointer hover:border-green-400 hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 flex-1 min-w-[160px]"
+            draggable="true" @dragstart="onDragStart($event, item)" @drag="onDrag($event)" @dragend="onDragEnd($event)">
+            <div :class="getIconClass(item.type)" class="w-8 h-8 flex items-center justify-center rounded-full mr-3">
+              <img :src="item.icon" alt="组件图标" class="w-5 h-5">
+            </div>
+            {{ item.name }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 组件顺序区域 -->
+    <div class="component-order-section">
+      <div class="group-header mb-3">
+        <h3 class="text-lg font-bold text-gray-800 border-l-4 border-purple-500 pl-3 inline-flex items-center">
+          组件顺序
+          <span class="ml-2 text-sm font-normal text-purple-500">{{ components.length }} 个已添加</span>
+        </h3>
+      </div>
+      <div ref="sortableList"
+        class="component-order-list bg-white border border-gray-100 rounded-xl p-4 min-h-[100px] shadow-sm">
+        <div v-for="component in components" :key="component.id" :data-component-id="component.id"
+          class="component-order-item p-3 mb-2 bg-white rounded border border-gray-200 cursor-move hover:border-blue-300 hover:shadow-sm transition-all duration-200 transform hover:-translate-y-0.5"
+          :class="{ 'border-blue-500 bg-blue-50 hover:bg-blue-100': component.id === selectedComponentId }"
+          @click="selectComponent(component.id)" @mouseenter="onItemMouseEnter(component.id)"
+          @mouseleave="onItemMouseLeave">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
+              </svg>
+              <span class="font-medium">{{ component.customName || component.name }}</span>
+            </div>
+            <div class="text-xs text-gray-500">
+              {{ component.customId || component.id.slice(0, 8) }}
+            </div>
+          </div>
+        </div>
+        <div v-if="components.length === 0" class="text-gray-400 text-center py-4">
+          暂无组件，请从上方拖拽添加
+        </div>
       </div>
     </div>
   </div>
@@ -72,8 +94,8 @@ const selectedComponentId = computed(() => componentStore.selectedComponentId);
 const sortableList = ref<HTMLElement | null>(null);
 
 const baseComponentTemplates = [
-  { 
-    type: 'text', 
+  {
+    type: 'text',
     name: '文本组件',
     icon: textIconUrl,
     createDefault: (): TextComponent => ({
@@ -85,8 +107,8 @@ const baseComponentTemplates = [
       color: '#000000',
     })
   },
-  { 
-    type: 'image', 
+  {
+    type: 'image',
     name: '图片组件',
     icon: imgIconUrl,
     createDefault: (): ImageComponent => ({
@@ -94,33 +116,33 @@ const baseComponentTemplates = [
       type: 'image',
       name: '图片组件',
       src: '',
-      width: 750,
+      width: 250,
       height: 200,
       hover: false,
     })
   },
-  { 
-    type: 'carousel', 
+  {
+    type: 'carousel',
     name: '轮播图组件',
     icon: imgIconUrl,
-    createDefault: (): CarouselComponent => ({ 
-      id: uuidv4(), 
-      type: 'carousel', 
-      name: '轮播图组件', 
-      images: [{ url: 'https://picsum.photos/600/400?random=1' }], 
-      width: 750, 
-      height: 200, 
-      autoplay: true, 
-      interval: 3000, 
-      showIndicators: true, 
-      showControls: true 
+    createDefault: (): CarouselComponent => ({
+      id: uuidv4(),
+      type: 'carousel',
+      name: '轮播图组件',
+      images: [{ url: 'https://picsum.photos/600/400?random=1' }],
+      width: 750,
+      height: 200,
+      autoplay: true,
+      interval: 3000,
+      showIndicators: true,
+      showControls: true
     })
   }
 ];
 
 const advanceComponentTemplates = [
-  { 
-    type: 'banner', 
+  {
+    type: 'banner',
     name: 'banner组件',
     icon: imgIconUrl,
     createDefault: (): BannerComponent => ({
@@ -131,11 +153,11 @@ const advanceComponentTemplates = [
       images: [{ url: 'https://picsum.photos/750/200?random=2', link: '#' }],
     })
   },
-  { 
-    type: 'category', 
+  {
+    type: 'category',
     name: '热门类目组件',
     icon: imgIconUrl,
-    createDefault: (): CategoryComponent => ({  
+    createDefault: (): CategoryComponent => ({
       id: uuidv4(),
       type: 'category',
       name: '热门类目组件',
@@ -148,11 +170,11 @@ const advanceComponentTemplates = [
       }))
     })
   },
-  { 
-    type: 'productRank', 
+  {
+    type: 'productRank',
     name: '商品排行组件',
     icon: imgIconUrl,
-    createDefault: (): ProductRankComponent => ({  
+    createDefault: (): ProductRankComponent => ({
       id: uuidv4(),
       type: 'productRank',
       name: '商品排行组件',
@@ -163,11 +185,11 @@ const advanceComponentTemplates = [
       buttonLink: '#'
     })
   },
-  { 
-    type: 'productGroup', 
+  {
+    type: 'productGroup',
     name: '商品分组组件',
     icon: imgIconUrl,
-    createDefault: (): ProductGroupComponent => ({  
+    createDefault: (): ProductGroupComponent => ({
       id: uuidv4(),
       type: 'productGroup',
       name: '商品分组组件',
@@ -205,12 +227,42 @@ function onDragStart(event: DragEvent, item: any) {
   if (event.dataTransfer) {
     event.dataTransfer.effectAllowed = 'copy';
     event.dataTransfer.setData('componentType', item.type);
+    // 添加拖拽开始时的视觉反馈
+    if (event.currentTarget instanceof HTMLElement) {
+      event.currentTarget.classList.add('opacity-50', 'scale-95');
+    }
   }
+}
+
+function onDrag(event: DragEvent) {
+  // 拖拽过程中的视觉反馈
+  if (event.currentTarget instanceof HTMLElement) {
+    // 可以在这里添加更多拖拽中的视觉效果
+  }
+}
+
+function onDragEnd(event: DragEvent) {
+  // 拖拽结束时恢复原始样式
+  if (event.currentTarget instanceof HTMLElement) {
+    event.currentTarget.classList.remove('opacity-50', 'scale-95');
+  }
+}
+
+function onItemMouseEnter(componentId: string) {
+  // 鼠标悬停在组件顺序项上的额外效果
+  const element = document.querySelector(`[data-component-id="${componentId}"]`);
+  if (element instanceof HTMLElement) {
+    // 可以在这里添加更多鼠标悬停效果
+  }
+}
+
+function onItemMouseLeave() {
+  // 鼠标离开组件顺序项时的清理
 }
 
 function selectComponent(id: string) {
   componentStore.selectComponent(id);
-  
+
   // 自动滚动到选中的组件
   setTimeout(() => {
     const selectedElement = document.querySelector(`.component-wrapper.relative.group.selected`);
@@ -218,5 +270,20 @@ function selectComponent(id: string) {
       selectedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, 100);
+}
+
+function getIconClass(componentType: string): string {
+  // 根据组件类型返回不同的背景色
+  const iconClasses: Record<string, string> = {
+    text: 'bg-blue-100 text-blue-600',
+    image: 'bg-purple-100 text-purple-600',
+    carousel: 'bg-pink-100 text-pink-600',
+    banner: 'bg-green-100 text-green-600',
+    category: 'bg-amber-100 text-amber-600',
+    productRank: 'bg-red-100 text-red-600',
+    productGroup: 'bg-cyan-100 text-cyan-600'
+  };
+
+  return iconClasses[componentType] || 'bg-gray-100 text-gray-600';
 }
 </script>
