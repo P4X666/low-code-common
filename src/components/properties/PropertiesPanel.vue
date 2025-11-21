@@ -2,6 +2,12 @@
   <div class="p-4">
     <h2 class="text-xl font-bold mb-4">属性设置</h2>
     
+    <!-- API管理组件 -->
+    <APIManager 
+      v-model="apiVariables"
+    />
+    
+    
     <div v-if="selectedComponent">
       <!-- 通用属性 -->
       <div class="mb-4">
@@ -60,10 +66,11 @@
         <div class="mb-2">
           <label class="block text-sm font-medium mb-1">内容</label>
           <textarea 
-            v-model="selectedComponent.content" 
+            :value="contentValue" 
+            @input="updateContent"
             class="w-full px-3 py-2 border rounded"
             rows="3"
-            @change="updateComponent"
+            placeholder="在此输入文本内容，可包含变量引用如${api.data.city}"
           ></textarea>
         </div>
         
@@ -635,8 +642,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useComponentStore } from '../../stores/componentStore';
+import { useAPIStore } from '../../stores/apiStore';
 import type { Component, BannerComponent , CategoryComponent, ProductRankComponent, ProductGroupComponent } from '../../types/component';
 import StyleEditor from './StyleEditor.vue';
+import APIManager from './APIManager.vue';
+import { parseVariables, nodesToText } from '../../utils/variableParser';
 
 const componentStore = useComponentStore();
 
@@ -648,6 +658,42 @@ const selectedComponent = computed<Component | null>(() => {
 const customId = ref('');
 const customName = ref('');
 const idError = ref('');
+
+const apiStore = useAPIStore();
+const apiVariables = computed({
+  get: () => apiStore.apiVariables,
+  set: (value) => apiStore.setApiVariables(value)
+});
+
+// 处理TextComponent的content属性
+const contentValue = computed(() => {
+  if (!selectedComponent.value || selectedComponent.value.type !== 'text') return '';
+  const content = selectedComponent.value.content;
+  // 如果content已经是解析后的节点数组，转换回原始文本格式
+  if (Array.isArray(content)) {
+    return content.map(node => node.content || '').join('');
+  }
+  return content || '';
+});
+
+// 更新content属性
+const updateContent = (event: any) => {
+  if (!selectedComponent.value || selectedComponent.value.type !== 'text') return;
+  const newValue = (event.target as HTMLInputElement).value;
+  // 直接设置为字符串，不经过变量处理
+  selectedComponent.value.content = newValue;
+  // 直接更新组件，不调用updateComponent以避免过度解析
+  componentStore.updateComponent(selectedComponent.value.id, { ...selectedComponent.value });
+};
+
+// 确保component.content始终是字符串格式
+watch(() => selectedComponent.value?.id, () => {
+  if (selectedComponent.value && selectedComponent.value.type === 'text' && Array.isArray(selectedComponent.value.content)) {
+    // 将节点数组转换为原始文本
+    selectedComponent.value.content = contentValue.value;
+    componentStore.updateComponent(selectedComponent.value.id, { ...selectedComponent.value });
+  }
+});
 
 // 监听选中组件变化，更新自定义ID和名称
 watch(selectedComponent, (newComponent) => {
@@ -697,9 +743,45 @@ function updateCustomName() {
   }
 }
 
+// 递归处理对象中的变量引用
+function processObjectVariables(obj: any, variables: Record<string, any>): any {
+  if (typeof obj === 'string') {
+    // 字符串直接解析
+    return obj.includes('${') ? parseVariables(obj, variables) : obj;
+  } else if (Array.isArray(obj)) {
+    // 数组递归处理每个元素
+    return obj.map(item => processObjectVariables(item, variables));
+  } else if (obj && typeof obj === 'object') {
+    // 对象递归处理每个属性
+    const result: any = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        // 对于TextComponent的content属性，跳过变量解析，保持原始字符串
+        if (obj.type === 'text' && key === 'content') {
+          result[key] = obj[key];
+        } else {
+          result[key] = processObjectVariables(obj[key], variables);
+        }
+      }
+    }
+    return result;
+  }
+  // 其他类型直接返回
+  return obj;
+}
+
 function updateComponent() {
   if (selectedComponent.value) {
-    componentStore.updateComponent(selectedComponent.value.id, selectedComponent.value);
+    try {
+      // 递归处理组件中的所有变量引用
+      const updatedComponent = processObjectVariables(selectedComponent.value, apiVariables.value);
+      
+      componentStore.updateComponent(selectedComponent.value.id, updatedComponent);
+    } catch (error) {
+      console.error('组件变量解析失败:', error);
+      // 发生错误时，尝试使用简单的直接更新
+      componentStore.updateComponent(selectedComponent.value.id, { ...selectedComponent.value });
+    }
   }
 }
 
