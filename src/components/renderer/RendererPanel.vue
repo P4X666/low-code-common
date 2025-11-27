@@ -38,8 +38,9 @@
         </span>
       </div>
       <template v-else>
+        <!-- 只渲染顶级组件，容器内的子组件由容器组件自己渲染 -->
         <div 
-          v-for="comp in components" 
+          v-for="comp in topLevelComponents" 
           :key="comp.id" 
           class="component-wrapper relative group"
           :class="{ 'selected': comp.id === componentStore.selectedComponentId }"
@@ -49,26 +50,6 @@
             :is="getComponentByType(comp.type)" 
             :component="comp as any" 
           />
-          <!-- 删除按钮 -->
-          <!-- 编辑提示 -->
-          <div v-if="comp.id === componentStore.selectedComponentId" class="absolute bottom-3 left-3 bg-blue-500 bg-opacity-90 text-white text-xs px-2 py-1 rounded-md shadow-lg transform transition-all duration-200 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
-            点击编辑
-          </div>
-          
-          <!-- 删除按钮 -->
-          <button
-            v-if="comp.id === componentStore.selectedComponentId"
-            @click.stop="deleteComponent(comp.id)"
-            class="absolute top-3 right-3 w-8 h-8 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full flex items-center justify-center shadow-lg transform transition-all duration-200 hover:scale-110 hover:from-red-600 hover:to-red-700 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2"
-            title="删除组件"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-            </svg>
-          </button>
         </div>
       </template>
     </div>
@@ -86,11 +67,26 @@ import BannerRenderer from './components/BannerRenderer.vue';
 import CategoryRenderer from './components/CategoryRenderer.vue';
 import ProductRankRenderer from './components/ProductRankRenderer.vue';
 import ProductGroupRenderer from './components/ProductGroupRenderer.vue';
+import ContainerRenderer from './components/ContainerRenderer.vue';
 
 const componentStore = useComponentStore();
 const components = computed(() => componentStore.components);
 const pageConfig = computed(() => componentStore.pageConfig);
 const sortableContainer = ref<HTMLElement | null>(null);
+
+// 计算顶级组件（不是任何容器组件的子组件的组件）
+const topLevelComponents = computed(() => {
+  // 收集所有容器组件的子组件ID
+  const allChildComponentIds = new Set<string>();
+  components.value.forEach(component => {
+    if ('children' in component && Array.isArray(component.children)) {
+      component.children.forEach(childId => allChildComponentIds.add(childId));
+    }
+  });
+  
+  // 过滤出顶级组件（不在任何容器的children列表中的组件）
+  return components.value.filter(component => !allChildComponentIds.has(component.id));
+});
 
 onMounted(() => {
   if (sortableContainer.value) {
@@ -126,6 +122,8 @@ function getComponentByType(type: string) {
       return ProductRankRenderer;
     case 'productGroup':
       return ProductGroupRenderer;
+    case 'container':
+      return ContainerRenderer;
     default:
       return null;
   }
@@ -242,6 +240,14 @@ function onDrop(event: DragEvent) {
           width: 750,
           height: 400
         })
+      },
+      {
+        type: 'container', createDefault: () => ({
+          id: crypto.randomUUID(),
+          type: 'container',
+          name: '容器组件',
+          children: []
+        })
       }
     ].find(t => t.type === componentType);
 
@@ -255,10 +261,6 @@ function onDrop(event: DragEvent) {
 
 function selectComponent(id: string) {
   componentStore.selectComponent(id);
-}
-
-function deleteComponent(id: string) {
-  componentStore.removeComponent(id);
 }
 </script>
 

@@ -58,9 +58,6 @@ function selectComponent(event: MouseEvent) {
   padding: 8px;
   cursor: pointer;
 
-  &.selected {
-    .component-selected();
-  }
 }
 
 .banner-container {

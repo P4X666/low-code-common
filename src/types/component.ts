@@ -23,7 +23,7 @@ export interface StyleProperties {
 
 export interface ComponentBase {
   id: string;
-  type: 'text' | 'image' | 'carousel' | 'banner' | 'category' | 'productRank' | 'productGroup';
+  type: 'text' | 'image' | 'carousel' | 'banner' | 'category' | 'productRank' | 'productGroup' | 'container';
   name: string;
   customId?: string; // 用户自定义ID
   customName?: string; // 用户自定义名称
@@ -129,7 +129,13 @@ export interface ProductGroupComponent extends BusinessComponentBase {
   buttonLink?: string;
 }
 
-export type BaseComponent = TextComponent | ImageComponent | CarouselComponent
+// 容器组件
+export interface ContainerComponent extends ComponentBase {
+  type: 'container';
+  children?: string[]; // 子组件ID列表
+}
+
+export type BaseComponent = TextComponent | ImageComponent | CarouselComponent | ContainerComponent
 export type BusinessComponent = BannerComponent | CategoryComponent | ProductRankComponent | ProductGroupComponent;
 
 export type Component = BaseComponent | BusinessComponent;

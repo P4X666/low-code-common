@@ -78,9 +78,6 @@ function selectComponent(event: MouseEvent) {
   padding: 8px;
   cursor: pointer;
 
-  &.selected {
-    .component-selected();
-  }
 }
 
 .product-group-container {

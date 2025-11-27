@@ -51,10 +51,6 @@ function selectComponent(event: MouseEvent) {
   padding: 8px;
   cursor: pointer;
 
-  &.selected {
-    .component-selected();
-  }
-
   img {
     display: block;
     max-width: 100%;

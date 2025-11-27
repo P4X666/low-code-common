@@ -162,9 +162,6 @@ function selectComponent() {
   padding: 8px;
   cursor: pointer;
   
-  &.selected {
-    .component-selected();
-  }
 }
 
 /* API变量高亮样式 */

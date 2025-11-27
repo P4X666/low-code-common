@@ -112,9 +112,6 @@ function changeDataSource(dataSource: 'ranking' | 'hotSale') {
   padding: 8px;
   cursor: pointer;
 
-  &.selected {
-    .component-selected();
-  }
 }
 
 .product-rank-container {
