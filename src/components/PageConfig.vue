@@ -1,9 +1,12 @@
 <template>
-  <div class="config-container">
-    <!-- 页面配置 -->
-    <div class="page-config mb-6">
-      <h3 class="text-lg font-semibold mb-4">页面配置</h3>
-      
+  <div class="drawer-content">
+    <!-- 抽屉标题栏 -->
+    <div class="drawer-header">
+      <h3 class="text-lg font-semibold">页面配置</h3>
+    </div>
+
+    <!-- 页面配置内容 -->
+    <div class="page-config">
       <div class="space-y-4">
         <!-- 页面标题 -->
         <div>
@@ -67,8 +70,15 @@
       </div>
     </div>
 
+    <!-- API管理 -->
+    <div class="api-manager-section">
+      <APIManager />
+    </div>
+
     <!-- 项目管理 -->
-    <ProjectManager />
+    <div class="project-manager-section">
+      <ProjectManager />
+    </div>
   </div>
 </template>
 
@@ -76,8 +86,11 @@
 import { ref, watch } from 'vue';
 import { useComponentStore } from '../stores/componentStore';
 import ProjectManager from './ProjectManager.vue';
+import APIManager from './properties/APIManager.vue';
+import { useAPIStore } from '../stores/apiStore';
 
 const componentStore = useComponentStore();
+const apiStore = useAPIStore();
 
 const localConfig = ref({
   title: componentStore.pageConfig.title,
@@ -96,14 +109,35 @@ const applyConfig = () => {
 </script>
 
 <style scoped>
-.config-container {
+.drawer-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.drawer-header {
   padding: 16px;
+  border-bottom: 1px solid #eaecf0;
+  background-color: #f9fafb;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .page-config {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 16px;
+  background: white;
+}
+
+.api-manager-section {
+  padding: 16px;
+  background: white;
+  border-top: 1px solid #eaecf0;
+}
+
+.project-manager-section {
+  padding: 0 16px 16px;
+  border-top: 1px solid #eaecf0;
 }
 </style>

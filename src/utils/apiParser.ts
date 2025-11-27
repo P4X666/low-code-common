@@ -10,7 +10,7 @@ export interface ApiParser {
    * @returns 解析后的API数据对象
    */
   parse(content: string): any;
-  
+
   /**
    * 验证文档是否符合该解析器的格式
    * @param content 文档内容
@@ -19,6 +19,24 @@ export interface ApiParser {
   validate(content: string): boolean;
 }
 
+const getObjectData = (object: Record<string, any>) => {
+  return Object.keys(object)[0] as any;
+};
+const getArrByPath = (path = '') => {
+  // 如果有 # 则意味着从根目录开始查询
+  if (path.includes('#')) {
+    const newPath = path.replace('#/', '');
+    return decodeURIComponent(newPath).split('/');
+  }
+  return path.split('/');
+};
+const getDataByPathArr = (obj: any, pathArr: string[]) => {
+  let res = obj;
+  for (const path of pathArr) {
+    res = res[path];
+  }
+  return res.properties;
+};
 /**
  * Apifox Markdown解析器，用于解析包含YAML格式OpenAPI规范的Markdown文档
  */
@@ -34,23 +52,29 @@ export class ApifoxMarkdownParser implements ApiParser {
     if (!yamlMatch || !yamlMatch[1]) {
       throw new Error('无法从markdown中提取YAML内容');
     }
-    
+
     // 解析YAML为JavaScript对象
     const yamlContent = yamlMatch[1];
     const openApiSpec = yaml.load(yamlContent) as any;
-    
-    // 尝试从OpenAPI规范中提取MemberVO的properties
-    if (openApiSpec && openApiSpec.components && openApiSpec.components.schemas && openApiSpec.components.schemas.MemberVO) {
-      // 返回包含data字段的结构，让用户可以通过api1.data.birthDate引用
-      return {
-        data: openApiSpec.components.schemas.MemberVO.properties
-      };
+
+    let apiUrl, apiMethod, apiParams, apiRespond;
+    if (openApiSpec?.paths) {
+      apiUrl = getObjectData(openApiSpec.paths);
+      apiMethod = getObjectData(openApiSpec.paths[apiUrl]);
+      const apiInfo = openApiSpec.paths[apiUrl][apiMethod];
+      apiParams = apiInfo.parameters;
+      const commonResPath = apiInfo.responses['200'].content['application/json'].schema['$ref'];
+      const commonRes = getDataByPathArr(openApiSpec, getArrByPath(commonResPath));
+      apiRespond = getDataByPathArr(openApiSpec, getArrByPath(commonRes.data['$ref']));
     }
-    
-    // 如果找不到MemberVO的properties，返回完整的解析结果作为后备
-    return openApiSpec;
+    return {
+      url: apiUrl,
+      method: apiMethod,
+      params: apiParams,
+      data: apiRespond
+    };
   }
-  
+
   /**
    * 验证文档是否包含有效的YAML格式OpenAPI规范
    * @param markdownContent Markdown文档内容
@@ -62,7 +86,7 @@ export class ApifoxMarkdownParser implements ApiParser {
       if (!yamlMatch || !yamlMatch[1]) {
         return false;
       }
-      
+
       // 尝试解析YAML内容
       yaml.load(yamlMatch[1]);
       return true;
@@ -87,13 +111,13 @@ export class ApiParserFactory {
     if (type === 'apifox') {
       return new ApifoxMarkdownParser();
     }
-    
+
     // 否则，根据内容自动检测并创建适合的解析器
     const apifoxParser = new ApifoxMarkdownParser();
     if (apifoxParser.validate(content)) {
       return apifoxParser;
     }
-    
+
     // 默认使用Apifox Markdown解析器
     return new ApifoxMarkdownParser();
   }

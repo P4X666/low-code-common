@@ -2,12 +2,6 @@
   <div class="p-4">
     <h2 class="text-xl font-bold mb-4">属性设置</h2>
     
-    <!-- API管理组件 -->
-    <APIManager 
-      v-model="apiVariables"
-    />
-    
-    
     <div v-if="selectedComponent">
       <!-- 通用属性 -->
       <div class="mb-4">
@@ -642,11 +636,9 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useComponentStore } from '../../stores/componentStore';
-import { useAPIStore } from '../../stores/apiStore';
-import type { Component, BannerComponent , CategoryComponent, ProductRankComponent, ProductGroupComponent } from '../../types/component';
+import type { Component } from '../../types/component';
 import StyleEditor from './StyleEditor.vue';
-import APIManager from './APIManager.vue';
-import { parseVariables, nodesToText } from '../../utils/variableParser';
+import { parseVariables } from '../../utils/variableParser';
 
 const componentStore = useComponentStore();
 
@@ -658,12 +650,6 @@ const selectedComponent = computed<Component | null>(() => {
 const customId = ref('');
 const customName = ref('');
 const idError = ref('');
-
-const apiStore = useAPIStore();
-const apiVariables = computed({
-  get: () => apiStore.apiVariables,
-  set: (value) => apiStore.setApiVariables(value)
-});
 
 // 处理TextComponent的content属性
 const contentValue = computed(() => {
@@ -772,16 +758,7 @@ function processObjectVariables(obj: any, variables: Record<string, any>): any {
 
 function updateComponent() {
   if (selectedComponent.value) {
-    try {
-      // 递归处理组件中的所有变量引用
-      const updatedComponent = processObjectVariables(selectedComponent.value, apiVariables.value);
-      
-      componentStore.updateComponent(selectedComponent.value.id, updatedComponent);
-    } catch (error) {
-      console.error('组件变量解析失败:', error);
-      // 发生错误时，尝试使用简单的直接更新
-      componentStore.updateComponent(selectedComponent.value.id, { ...selectedComponent.value });
-    }
+    componentStore.updateComponent(selectedComponent.value.id, { ...selectedComponent.value });
   }
 }
 
