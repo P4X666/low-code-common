@@ -16,6 +16,19 @@ export const useAPIStore = defineStore('api', {
     getAllApiVariables(): Record<string, any> {
       return this.apiVariables;
     },
+
+    /**
+     * 获取所有被引用的API变量键名
+     */
+    getAliveApiVariables(): Record<string, any> {
+      const obj: Record<string, any> = {}
+      Object.keys(this.apiVariables).forEach(key => {
+        if (this.apiVariables[key].isAlive) {
+          obj[key] = this.apiVariables[key];
+        }
+      })
+      return obj;
+    },
     
     /**
      * 获取指定API变量
@@ -56,6 +69,13 @@ export const useAPIStore = defineStore('api', {
      */
     deleteApiVariable(key: string) {
       delete this.apiVariables[key];
+    },
+    /**
+     * 标记指定API变量是否被引用
+     * @param key API变量的键名
+     */
+    aliveApiVariable(key: string) {
+      return this.apiVariables[key].isAlive = true;
     }
   }
 });

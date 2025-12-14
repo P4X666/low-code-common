@@ -29,7 +29,6 @@ import { useComponentStore } from '../../../stores/componentStore';
 import { useAPIStore } from '../../../stores/apiStore';
 import { parseVariables, getValueByPath } from '../../../utils/variableParser';
 import type { TextComponent } from '../../../types/component';
-import type { VariableNode } from '../../../utils/variableParser';
 
 const props = defineProps<{
   component: TextComponent;
@@ -51,6 +50,10 @@ const renderedContent = computed(() => {
     // 将节点数组转换为HTML字符串
     return nodes.map(node => {
       if (node.type === 'variable') {
+        // 标记为API变量已引用
+        if (node.isApiVariable && node.apiKey) {
+          useAPIStore().aliveApiVariable(node.apiKey);
+        }
         // 直接使用节点的content作为原始变量引用
         const variableText = node.content;
         

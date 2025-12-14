@@ -24,9 +24,9 @@
     <div v-if="Object.keys(apiStore.apiVariables).length > 0" class="mt-4">
       <h4 class="text-sm font-medium mb-2">已解析的API变量</h4>
       <div class="p-3 bg-gray-50 rounded-md">
-        <div v-for="(api, key) in apiStore.apiVariables" :key="key" class="mb-3 pb-3 border-b last:border-0">
+        <div v-for="(api, key) in apiStore.apiVariables" :key="key" class="pb-3 border-b last:border-0">
           <div class="flex justify-between items-center">
-            <span class="font-medium">{{ key }}</span>
+            <span class="font-medium">{{ key }}  {{ api.isAlive ? '已引用' : '未引用' }}</span>
             <button 
               class="text-xs text-red-500 hover:text-red-700"
               @click="removeApi(key)"
@@ -35,7 +35,13 @@
             </button>
           </div>
           <div class="text-xs text-gray-500 mt-1">
-            {{ Object.keys(api).length }} 个可引用变量
+            接口路径：{{api.url}}
+          </div>
+          <div class="text-xs text-gray-500 mt-1">
+            接口方法：{{api.method}}
+          </div>
+          <div v-if="api.method==='get'" class="text-xs text-gray-500 mt-1">
+            {{ Object.keys(api.data).length }} 个可引用变量
           </div>
         </div>
       </div>
@@ -124,7 +130,7 @@ async function parseApiDoc() {
     }
     
     // 存储解析后的API数据
-    apiStore.setApiVariable(apiKey, filteredApiData);
+    apiStore.setApiVariable(apiKey, openapiData);
     
     successMessage.value = `API文档解析成功，可使用 ${apiKey} 引用`;
     apiUrl.value = '';

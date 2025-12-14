@@ -11,6 +11,7 @@ export interface VariableNode {
   variableValue?: any;
   isOpenApiProperty?: boolean;
   description?: string;
+  apiKey?: string;
 }
 
 /**
@@ -99,7 +100,8 @@ export function parseVariables(text: string, variables: Record<string, any>): Va
           isApiVariable: true,
           variableValue,
           isOpenApiProperty,
-          description
+          description,
+          apiKey
         });
       } else {
         // 非API变量
@@ -131,7 +133,7 @@ export function parseVariables(text: string, variables: Record<string, any>): Va
     // 出错时返回原始文本
     return [{ type: 'text', content: text }];
   }
-  console.log('result', result);
+
   return result;
 }
 

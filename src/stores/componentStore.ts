@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
 import type { Component, StyleProperties } from '../types/component';
+import { useAPIStore } from './apiStore';
 
 interface PageConfig {
   title: string;
@@ -15,7 +16,7 @@ export const useComponentStore = defineStore('component', {
     pageConfig: {
       title: '我的页面',
       backgroundColor: '#ffffff',
-      backgroundImage: ''
+      backgroundImage: '',
     } as PageConfig,
   }),
   
@@ -101,6 +102,7 @@ export const useComponentStore = defineStore('component', {
       const projectData = {
         components: this.components,
         pageConfig: this.pageConfig,
+        apiVariables: useAPIStore().getAllApiVariables,
         version: '1.0.0',
         timestamp: new Date().toISOString()
       };
@@ -133,6 +135,8 @@ export const useComponentStore = defineStore('component', {
             // 加载数据
             this.components = projectData.components;
             this.pageConfig = projectData.pageConfig;
+            // 加载API变量
+            useAPIStore().setApiVariables(projectData.apiVariables || {});
             this.selectedComponentId = null;
             
             resolve();
