@@ -28,10 +28,14 @@ export default defineConfig({
       '/apifox': {
         target: 'https://s.apifox.cn',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/apifox/, ''),
+        rewrite: (pathUrl) => pathUrl.replace(/^\/apifox/, ''),
         secure: false // 允许非https代理
       }
     }
+  },
+  esbuild: {
+    sourcemap: true,
+    sourceRoot: '/src',
   },
   build: {
     outDir: 'dist',

@@ -7,15 +7,7 @@
     <component 
       :is="component.link ? 'a' : 'div'" 
       :href="component.link" 
-      :style="{
-        fontSize: `${component.fontSize}px`,
-        color: component.color,
-        fontWeight: component.fontWeight || 'normal',
-        fontStyle: component.fontStyle || 'normal',
-        textAlign: component.textAlign || 'left',
-        lineHeight: component.lineHeight ? `${component.lineHeight}px` : 'normal',
-        letterSpacing: component.letterSpacing ? `${component.letterSpacing}px` : 'normal'
-      }"
+      :style="textStyles"
     >
       <!-- 渲染解析后的文本内容，支持变量替换 -->
       <span v-html="renderedContent"></span>
@@ -29,6 +21,7 @@ import { useComponentStore } from '../../../stores/componentStore';
 import { useAPIStore } from '../../../stores/apiStore';
 import { parseVariables, getValueByPath } from '../../../utils/variableParser';
 import type { TextComponent } from '../../../types/component';
+import { parseSpacing } from '@/utils/common';
 
 const props = defineProps<{
   component: TextComponent;
@@ -139,12 +132,27 @@ function formatVariableValue(value: any): string {
   return String(value);
 }
 
+// 计算文本样式
+const textStyles = computed(() => {
+  const style = props.component.style || {};
+  // 优先使用style中的文本样式，其次使用组件直接属性（兼容旧数据）
+  return {
+    fontSize: `${style.fontSize}px || 16px`,
+    color: style.color || '#000',
+    fontWeight: style.fontWeight || 'normal',
+    fontStyle: style.fontStyle || 'normal',
+    textAlign: style.textAlign || 'left',
+    lineHeight: style.lineHeight ? `${style.lineHeight}px` : 'normal',
+    letterSpacing: style.letterSpacing ? `${style.letterSpacing}px` : 'normal'
+  };
+});
+
 // 计算组件样式
 const componentStyles = computed(() => {
   const style = props.component.style || {};
   return {
-    margin: style.margin ? `${style.margin.top}px ${style.margin.right}px ${style.margin.bottom}px ${style.margin.left}px` : '',
-    padding: style.padding ? `${style.padding.top}px ${style.padding.right}px ${style.padding.bottom}px ${style.padding.left}px` : '',
+    margin: parseSpacing(style.margin),
+    padding: parseSpacing(style.padding),
     borderRadius: style.borderRadius ? `${style.borderRadius}px` : '',
     backgroundColor: style.backgroundColor || '',
     border: style.borderWidth ? `${style.borderWidth}px ${style.borderStyle || 'solid'} ${style.borderColor || '#000'}` : '',

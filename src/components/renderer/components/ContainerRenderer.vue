@@ -51,6 +51,7 @@ import BannerRenderer from './BannerRenderer.vue';
 import CategoryRenderer from './CategoryRenderer.vue';
 import ProductRankRenderer from './ProductRankRenderer.vue';
 import ProductGroupRenderer from './ProductGroupRenderer.vue';
+import { parseSpacing } from '@/utils/common';
 
 const props = defineProps<{
   component: ContainerComponent;
@@ -78,8 +79,8 @@ const childrenComponents = computed(() => {
 const containerStyles = computed(() => {
   const style = props.component.style || {};
   return {
-    margin: style.margin ? `${style.margin.top}px ${style.margin.right}px ${style.margin.bottom}px ${style.margin.left}px` : '',
-    padding: style.padding ? `${style.padding.top}px ${style.padding.right}px ${style.padding.bottom}px ${style.padding.left}px` : '',
+    margin: parseSpacing(style.margin),
+    padding: parseSpacing(style.padding),
     borderRadius: style.borderRadius ? `${style.borderRadius}px` : '',
     backgroundColor: style.backgroundColor || '',
     border: style.borderWidth ? `${style.borderWidth}px ${style.borderStyle || 'solid'} ${style.borderColor || '#000'}` : '',

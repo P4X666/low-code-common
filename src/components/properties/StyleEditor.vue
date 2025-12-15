@@ -45,6 +45,64 @@
       </div>
     </div>
     
+    <!-- 文本样式 -->
+    <div class="style-section">
+      <h4 class="text-sm font-medium mb-2">文本样式</h4>
+      
+      <div class="grid grid-cols-2 gap-2 mb-3">
+        <div>
+          <label class="block text-sm mb-1">字体大小</label>
+          <input type="number" v-model="fontSize" class="border rounded px-2 py-1 text-xs w-full" />
+        </div>
+        <div>
+          <label class="block text-sm mb-1">颜色</label>
+          <div class="color-picker">
+            <input type="color" v-model="color" class="w-6 h-6 border-0" />
+            <input type="text" v-model="color" class="border rounded px-2 py-1 text-xs flex-1" />
+          </div>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-2 gap-2 mb-3">
+        <div>
+          <label class="block text-sm mb-1">字体粗细</label>
+          <select v-model="fontWeight" class="border rounded px-2 py-1 text-xs w-full">
+            <option value="normal">正常</option>
+            <option value="bold">粗体</option>
+            <option value="lighter">细体</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm mb-1">字体样式</label>
+          <select v-model="fontStyle" class="border rounded px-2 py-1 text-xs w-full">
+            <option value="normal">正常</option>
+            <option value="italic">斜体</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="mb-3">
+        <label class="block text-sm mb-1">文本对齐</label>
+        <select v-model="textAlign" class="border rounded px-2 py-1 text-xs w-full">
+          <option value="left">左对齐</option>
+          <option value="center">居中</option>
+          <option value="right">右对齐</option>
+          <option value="justify">两端对齐</option>
+        </select>
+      </div>
+      
+      <div class="grid grid-cols-2 gap-2 mb-3">
+        <div>
+          <label class="block text-sm mb-1">行高</label>
+          <input type="number" v-model="lineHeight" class="border rounded px-2 py-1 text-xs w-full" />
+        </div>
+        <div>
+          <label class="block text-sm mb-1">字间距</label>
+          <input type="number" v-model="letterSpacing" class="border rounded px-2 py-1 text-xs w-full" />
+        </div>
+      </div>
+    </div>
+    
     <!-- 边框与背景 -->
     <div class="style-section">
       <h4 class="text-sm font-medium mb-2">边框与背景</h4>
@@ -119,7 +177,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, effect } from 'vue';
 import { useComponentStore } from '../../stores/componentStore';
 import type { StyleProperties, Component } from '../../types/component';
 
@@ -140,9 +198,65 @@ const borderColor = ref('#000000');
 const borderStyle = ref<'none' | 'solid' | 'dashed' | 'dotted'>('none');
 const boxShadow = ref('none');
 const opacity = ref(1);
+// 文本样式属性
+const fontSize = ref(16);
+const color = ref('#000000');
+const fontWeight = ref<'normal' | 'bold' | 'lighter'>('normal');
+const fontStyle = ref<'normal' | 'italic'>('normal');
+const textAlign = ref<'left' | 'center' | 'right' | 'justify'>('left');
+const lineHeight = ref<number | undefined>(undefined);
+const letterSpacing = ref<number | undefined>(undefined);
 
 // 监听组件ID变化，加载组件样式
 watch(() => props.componentId, loadComponentStyles, { immediate: true });
+
+// 辅助函数：将margin/padding对象转换为字符串
+function formatSpacing(obj: { top: number; right: number; bottom: number; left: number }): string {
+  return `${obj.top}px ${obj.right}px ${obj.bottom}px ${obj.left}px`;
+}
+
+// 辅助函数：将margin/padding字符串解析为对象
+function parseSpacing(str: string | undefined): { top: number; right: number; bottom: number; left: number } {
+  if (!str || typeof str !== 'string') {
+    return { top: 0, right: 0, bottom: 0, left: 0 };
+  }
+  
+  const values = str.replace(/px/g, '').split(/\s+/).map(val => parseInt(val, 10) || 0);
+  
+  // 处理不同数量的值
+  switch (values.length) {
+    case 1: // 一个值：top=right=bottom=left
+      return { 
+        top: values[0], 
+        right: values[0], 
+        bottom: values[0], 
+        left: values[0] 
+      };
+    case 2: // 两个值：top/bottom, right/left
+      return { 
+        top: values[0], 
+        right: values[1], 
+        bottom: values[0], 
+        left: values[1] 
+      };
+    case 3: // 三个值：top, right/left, bottom
+      return { 
+        top: values[0], 
+        right: values[1], 
+        bottom: values[2], 
+        left: values[1] 
+      };
+    case 4: // 四个值：top, right, bottom, left
+      return { 
+        top: values[0], 
+        right: values[1], 
+        bottom: values[2], 
+        left: values[3] 
+      };
+    default:
+      return { top: 0, right: 0, bottom: 0, left: 0 };
+  }
+}
 
 // 加载组件样式
 function loadComponentStyles() {
@@ -154,9 +268,9 @@ function loadComponentStyles() {
   // 加载现有样式
   const style = component.value.style || {};
   
-  // 设置默认值
-  margin.value = style.margin || { top: 0, right: 0, bottom: 0, left: 0 };
-  padding.value = style.padding || { top: 0, right: 0, bottom: 0, left: 0 };
+  // 设置默认值，处理字符串格式的margin和padding
+  margin.value = parseSpacing(style.margin as unknown as string);
+  padding.value = parseSpacing(style.padding as unknown as string);
   borderRadius.value = style.borderRadius || 0;
   backgroundColor.value = style.backgroundColor || '';
   borderWidth.value = style.borderWidth || 0;
@@ -164,6 +278,17 @@ function loadComponentStyles() {
   borderStyle.value = style.borderStyle || 'none';
   boxShadow.value = style.boxShadow || 'none';
   opacity.value = style.opacity || 1;
+  
+  // 加载文本样式
+  // 处理fontSize，优先使用fontSize，其次使用font-size
+  // @ts-ignore
+  fontSize.value = style.fontSize || 16;
+  color.value = style.color || '#000000';
+  fontWeight.value = style.fontWeight || 'normal';
+  fontStyle.value = style.fontStyle || 'normal';
+  textAlign.value = style.textAlign || 'left';
+  lineHeight.value = style.lineHeight || undefined;
+  letterSpacing.value = style.letterSpacing || undefined;
 }
 
 // 应用样式到组件
@@ -171,17 +296,24 @@ function applyStyles() {
   if (!component.value) return;
   
   const updatedStyle: StyleProperties = {
-    margin: margin.value,
-    padding: padding.value,
+    margin: formatSpacing(margin.value),
+    padding: formatSpacing(padding.value),
     borderRadius: borderRadius.value,
     backgroundColor: backgroundColor.value,
     borderWidth: borderWidth.value,
     borderColor: borderColor.value,
     borderStyle: borderStyle.value,
     boxShadow: boxShadow.value,
-    opacity: opacity.value
+    opacity: opacity.value,
+    // 应用文本样式
+    fontSize: fontSize.value,
+    color: color.value,
+    fontWeight: fontWeight.value,
+    fontStyle: fontStyle.value,
+    textAlign: textAlign.value,
+    lineHeight: lineHeight.value,
+    letterSpacing: letterSpacing.value
   };
-  
   componentStore.updateComponentStyle(props.componentId, updatedStyle);
 }
 </script>

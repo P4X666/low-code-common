@@ -68,30 +68,30 @@
           ></textarea>
         </div>
         
-        <div class="mb-2">
+        <!-- <div class="mb-2">
           <label class="block text-sm font-medium mb-1">字体大小</label>
           <input 
             type="number" 
-            v-model="selectedComponent.fontSize" 
+            v-model="selectedStyle.fontSize" 
             class="w-full px-3 py-2 border rounded"
             @change="updateComponent"
           />
-        </div>
+        </div> -->
         
-        <div class="mb-2">
+        <!-- <div class="mb-2">
           <label class="block text-sm font-medium mb-1">颜色</label>
           <input 
             type="color" 
-            v-model="selectedComponent.color" 
+            v-model="selectedStyle.color" 
             class="w-full h-10"
             @change="updateComponent"
           />
-        </div>
+        </div> -->
         
-        <div class="mb-2">
+        <!-- <div class="mb-2">
           <label class="block text-sm font-medium mb-1">字体粗细</label>
           <select 
-            v-model="selectedComponent.fontWeight" 
+            v-model="selectedStyle.fontWeight" 
             class="w-full px-3 py-2 border rounded"
             @change="updateComponent"
           >
@@ -99,24 +99,24 @@
             <option value="bold">粗体</option>
             <option value="lighter">细体</option>
           </select>
-        </div>
+        </div> -->
         
-        <div class="mb-2">
+        <!-- <div class="mb-2">
           <label class="block text-sm font-medium mb-1">字体样式</label>
           <select 
-            v-model="selectedComponent.fontStyle" 
+            v-model="selectedStyle.fontStyle" 
             class="w-full px-3 py-2 border rounded"
             @change="updateComponent"
           >
             <option value="normal">正常</option>
             <option value="italic">斜体</option>
           </select>
-        </div>
+        </div> -->
         
-        <div class="mb-2">
+        <!-- <div class="mb-2">
           <label class="block text-sm font-medium mb-1">文本对齐</label>
           <select 
-            v-model="selectedComponent.textAlign" 
+            v-model="selectedStyle.textAlign" 
             class="w-full px-3 py-2 border rounded"
             @change="updateComponent"
           >
@@ -125,7 +125,7 @@
             <option value="right">右对齐</option>
             <option value="justify">两端对齐</option>
           </select>
-        </div>
+        </div> -->
       </div>
       
       <!-- 图片组件特有属性 -->
@@ -651,6 +651,18 @@ const customId = ref('');
 const customName = ref('');
 const idError = ref('');
 
+// 计算选中组件的样式，确保style对象存在
+const selectedStyle = computed(() => {
+  if (!selectedComponent.value) {
+    return {};
+  }
+  // 如果style不存在，创建一个空对象并关联到组件
+  if (!selectedComponent.value.style) {
+    selectedComponent.value.style = {};
+  }
+  return selectedComponent.value.style;
+});
+
 // 处理TextComponent的content属性
 const contentValue = computed(() => {
   if (!selectedComponent.value || selectedComponent.value.type !== 'text') return '';
@@ -727,33 +739,6 @@ function updateCustomName() {
       customName: customName.value.trim() || undefined
     });
   }
-}
-
-// 递归处理对象中的变量引用
-function processObjectVariables(obj: any, variables: Record<string, any>): any {
-  if (typeof obj === 'string') {
-    // 字符串直接解析
-    return obj.includes('${') ? parseVariables(obj, variables) : obj;
-  } else if (Array.isArray(obj)) {
-    // 数组递归处理每个元素
-    return obj.map(item => processObjectVariables(item, variables));
-  } else if (obj && typeof obj === 'object') {
-    // 对象递归处理每个属性
-    const result: any = {};
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        // 对于TextComponent的content属性，跳过变量解析，保持原始字符串
-        if (obj.type === 'text' && key === 'content') {
-          result[key] = obj[key];
-        } else {
-          result[key] = processObjectVariables(obj[key], variables);
-        }
-      }
-    }
-    return result;
-  }
-  // 其他类型直接返回
-  return obj;
 }
 
 function updateComponent() {

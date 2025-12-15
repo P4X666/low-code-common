@@ -34,6 +34,7 @@
 import { computed } from 'vue';
 import { useComponentStore } from '../../../stores/componentStore';
 import type { CategoryComponent } from '../../../types/component';
+import { parseSpacing } from '@/utils/common';
 
 const props = defineProps<{
   component: CategoryComponent;
@@ -46,8 +47,8 @@ const isSelected = computed(() => componentStore.selectedComponentId === props.c
 const componentStyles = computed(() => {
   const style = props.component.style || {};
   return {
-    margin: style.margin ? `${style.margin.top}px ${style.margin.right}px ${style.margin.bottom}px ${style.margin.left}px` : '',
-    padding: style.padding ? `${style.padding.top}px ${style.padding.right}px ${style.padding.bottom}px ${style.padding.left}px` : '',
+    margin: parseSpacing(style.margin),
+    padding: parseSpacing(style.padding),
     borderRadius: style.borderRadius ? `${style.borderRadius}px` : '',
     backgroundColor: style.backgroundColor || '',
     border: style.borderWidth ? `${style.borderWidth}px ${style.borderStyle || 'solid'} ${style.borderColor || '#000'}` : '',

@@ -4,13 +4,13 @@ export interface StyleProperties {
     right: number;
     bottom: number;
     left: number;
-  };
+  } | string;
   padding?: {
     top: number;
     right: number;
     bottom: number;
     left: number;
-  };
+  } | string;
   icon?: string;
   borderRadius?: number;
   backgroundColor?: string;
@@ -19,6 +19,14 @@ export interface StyleProperties {
   borderStyle?: 'none' | 'solid' | 'dashed' | 'dotted';
   boxShadow?: string;
   opacity?: number;
+  // 文本样式属性
+  fontSize?: number;
+  color?: string;
+  fontWeight?: 'normal' | 'bold' | 'lighter';
+  fontStyle?: 'normal' | 'italic';
+  textAlign?: 'left' | 'center' | 'right' | 'justify';
+  lineHeight?: number;
+  letterSpacing?: number;
 }
 
 export interface ComponentBase {
@@ -34,13 +42,6 @@ export interface ComponentBase {
 export interface TextComponent extends ComponentBase {
   type: 'text';
   content: string;
-  fontSize: number;
-  color: string;
-  fontWeight?: 'normal' | 'bold' | 'lighter';
-  fontStyle?: 'normal' | 'italic';
-  textAlign?: 'left' | 'center' | 'right' | 'justify';
-  lineHeight?: number;
-  letterSpacing?: number
 }
 
 export interface ImageComponent extends ComponentBase {
