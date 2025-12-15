@@ -1,8 +1,20 @@
 <template>
   <div class="component-preview-container bg-white border border-gray-100 shadow-md">
+    <div class="phone-top-wrap w-full">
+      <img class="w-full h-full" src="/phone-top.5971738.png" />
+    </div>
     <!-- 页面标题 -->
-    <div class="page-title px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 shadow-sm">
+    <!-- <div class="page-title px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 shadow-sm">
       <h2 class="text-lg sm:text-xl font-medium text-gray-800 tracking-tight text-center">{{ pageConfig.title || '页面预览' }}</h2>
+    </div> -->
+    <div class="page-title flex items-center font-bold">
+      <div class="flex-1"></div>
+      <div class="flex-1 flex justify-center">
+        {{ pageConfig.title || '页面预览' }}
+      </div>
+      <div class="flex-1 flex justify-center">
+        <img class="phone-icon" src="/phone-icon.28da43a.png" />
+      </div>
     </div>
     
     <!-- <div class="h-32 relative">
@@ -13,7 +25,7 @@
     </div> -->
     <div 
       ref="sortableContainer"
-      class="component-preview h-full p-4 sm:p-6" 
+      class="component-preview h-full px-4" 
       @dragover.prevent 
       @drop="onDrop"
       :style="{
@@ -24,12 +36,12 @@
         backgroundRepeat: 'no-repeat'
       }"
     >
-      <div v-if="components.length === 0" class="flex flex-col items-center justify-center min-h-[200px] text-center text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+      <div v-if="components.length === 0" class="flex flex-col items-center justify-center min-h-[200px] text-center text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-200 mt-8">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-blue-400 mb-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
         <h3 class="text-lg font-medium mb-2">开始创建您的页面</h3>
-        <p class="max-w-md mb-4">从左侧组件库拖拽组件到此处，构建您的页面内容</p>
+        <p class="max-w-md mb-4 px-8">从左侧组件库拖拽组件到此处，构建您的页面内容</p>
         <span class="text-sm text-blue-500 flex items-center animate-bounce">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -265,6 +277,16 @@ function selectComponent(id: string) {
 </script>
 
 <style scoped lang="less">
+.phone-top-wrap {
+  height: 28px;
+}
+.page-title {
+  height: 32px;
+  .phone-icon {
+    width: 87px; 
+    height: 28px;
+  }
+}
 .logo-name {
   font-size: 16px;
   font-weight: 500;
