@@ -268,3 +268,14 @@ body {
 .config-area {
   display: none;
 }
+
+// 自定义shake动画
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateY(-50%) translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateY(-50%) translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateY(-50%) translateX(5px); }
+}

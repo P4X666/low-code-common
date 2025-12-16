@@ -63,9 +63,16 @@ export class ApifoxMarkdownParser implements ApiParser {
       apiMethod = getObjectData(openApiSpec.paths[apiUrl]);
       const apiInfo = openApiSpec.paths[apiUrl][apiMethod];
       apiParams = apiInfo.parameters;
-      const commonResPath = apiInfo.responses['200'].content['application/json'].schema['$ref'];
-      const commonRes = getDataByPathArr(openApiSpec, getArrByPath(commonResPath));
-      apiRespond = getDataByPathArr(openApiSpec, getArrByPath(commonRes.data['$ref']));
+      
+      // 只有get方法才会有响应体
+      if(apiMethod === 'get'){
+        const commonResPath = apiInfo.responses['200'].content['application/json'].schema['$ref'];
+        const commonRes = getDataByPathArr(openApiSpec, getArrByPath(commonResPath));
+        apiRespond = getDataByPathArr(openApiSpec, getArrByPath(commonRes.data['$ref']));
+      }else{
+        apiRespond = {};
+      }
+      
     }
     return {
       url: apiUrl,

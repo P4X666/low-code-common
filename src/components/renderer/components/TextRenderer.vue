@@ -135,9 +135,8 @@ function formatVariableValue(value: any): string {
 // 计算文本样式
 const textStyles = computed(() => {
   const style = props.component.style || {};
-  // 优先使用style中的文本样式，其次使用组件直接属性（兼容旧数据）
   return {
-    fontSize: `${style.fontSize}px || 16px`,
+    fontSize: `${style.fontSize || 16}px`,
     color: style.color || '#000',
     fontWeight: style.fontWeight || 'normal',
     fontStyle: style.fontStyle || 'normal',

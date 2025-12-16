@@ -29,6 +29,8 @@ export interface StyleProperties {
   letterSpacing?: number;
 }
 
+export type ComponentBaseEventType = 'pageJump' | 'apiRequest' | 'none';
+
 export interface ComponentBase {
   id: string;
   type: 'text' | 'image' | 'carousel' | 'banner' | 'category' | 'productRank' | 'productGroup' | 'container';
@@ -36,6 +38,11 @@ export interface ComponentBase {
   customId?: string; // 用户自定义ID
   customName?: string; // 用户自定义名称
   link?: string;
+  eventType?: ComponentBaseEventType;
+  /** 页面跳转路径 */
+  pageJumpPath?: string;
+  /** 接口请求路径 */
+  apiRequestPath?: string;
   style?: StyleProperties;
 }
 
