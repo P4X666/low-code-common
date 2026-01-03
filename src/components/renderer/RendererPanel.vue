@@ -25,15 +25,11 @@
     </div> -->
     <div 
       ref="sortableContainer"
-      class="component-preview h-full px-4" 
+      class="component-preview px-4 relative overflow-y-auto" 
       @dragover.prevent 
       @drop="onDrop"
       :style="{
         backgroundColor: pageConfig.backgroundColor,
-        backgroundImage: pageConfig.backgroundImage ? `url(${pageConfig.backgroundImage})` : 'none',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
       }"
     >
       <div v-if="components.length === 0" class="flex flex-col items-center justify-center min-h-[200px] text-center text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-200 mt-8">
@@ -50,19 +46,32 @@
         </span>
       </div>
       <template v-else>
+        <img v-if="pageConfig.backgroundImage" class="page-bg" :src="pageConfig.backgroundImage" />
         <!-- 只渲染顶级组件，容器内的子组件由容器组件自己渲染 -->
-        <div 
-          v-for="comp in topLevelComponents" 
-          :key="comp.id" 
-          class="component-wrapper relative group"
-          :class="{ 'selected': comp.id === componentStore.selectedComponentId }"
-          @click="selectComponent(comp.id)"
-        >
-          <component 
-            :is="getComponentByType(comp.type)" 
-            :component="comp as any" 
-          />
-        </div>
+         <template v-for="comp in topLevelComponents" :key="comp.id">
+          <div
+            v-if="comp.type !== 'floatingButton'"
+            class="component-wrapper group"
+            :class="{ 'selected': comp.id === componentStore.selectedComponentId,  }"
+            @click="selectComponent(comp.id)"
+          >
+            <component 
+              :is="getComponentByType(comp.type)" 
+              :component="comp as any" 
+            />
+          </div>
+        </template>
+        <div
+            v-if="fixedComponent"
+            class="component-wrapper group fixed-box"
+            :class="{ 'selected': fixedComponent.id === componentStore.selectedComponentId }"
+            @click="selectComponent(fixedComponent.id)"
+          >
+            <component 
+              :is="getComponentByType(fixedComponent.type)" 
+              :component="fixedComponent as any" 
+            />
+          </div>
       </template>
     </div>
   </div>
@@ -80,6 +89,9 @@ import CategoryRenderer from './components/CategoryRenderer.vue';
 import ProductRankRenderer from './components/ProductRankRenderer.vue';
 import ProductGroupRenderer from './components/ProductGroupRenderer.vue';
 import ContainerRenderer from './components/ContainerRenderer.vue';
+import FloatingButtonRenderer from './components/FloatingButtonRenderer.vue';
+import { getDefaultComponentData } from '@/utils/component-defaultdata';
+import type { Component, ComponentType } from '@/types/component';
 
 const componentStore = useComponentStore();
 const components = computed(() => componentStore.components);
@@ -98,6 +110,10 @@ const topLevelComponents = computed(() => {
   
   // 过滤出顶级组件（不在任何容器的children列表中的组件）
   return components.value.filter(component => !allChildComponentIds.has(component.id));
+});
+// 通常来说，固定组件是不参与排序的，且固定组件一般只有一个
+const fixedComponent = computed(() => {
+  return components.value.find(comp => comp.type === 'floatingButton');
 });
 
 onMounted(() => {
@@ -136,135 +152,18 @@ function getComponentByType(type: string) {
       return ProductGroupRenderer;
     case 'container':
       return ContainerRenderer;
+    case 'floatingButton':
+      return FloatingButtonRenderer;
     default:
       return null;
   }
 }
 
 function onDrop(event: DragEvent) {
-  const componentType = event.dataTransfer?.getData('componentType');
+  const componentType = event.dataTransfer?.getData('componentType') as ComponentType;
   if (componentType) {
-    const template = [
-      {
-        type: 'text', createDefault: () => ({
-          id: crypto.randomUUID(),
-          type: 'text',
-          name: '文本组件',
-          content: '点击编辑文本',
-          fontSize: 16,
-          color: '#000000'
-        })
-      },
-      {
-        type: 'image', createDefault: () => ({
-          id: crypto.randomUUID(),
-          type: 'image',
-          name: '图片组件',
-          src: '',
-          width: 250,
-          height: 200,
-          hover: false
-        })
-      },
-      {        
-        type: 'carousel', createDefault: () => ({
-          id: crypto.randomUUID(),
-          type: 'carousel',
-          name: '轮播图组件',
-          images: [{ url: 'https://picsum.photos/600/400?random=1' }],
-          width: 750,
-          height: 200,
-          autoplay: true,
-          interval: 3000,
-          showIndicators: true,
-          showControls: true
-        })
-      },
-      {        
-        type: 'banner', createDefault: () => ({
-          id: crypto.randomUUID(),
-          type: 'banner',
-          name: 'Banner组件',
-          title: 'Banner标题',
-          images: [{ url: 'https://picsum.photos/750/200?random=10', link: '#' }],
-          width: 450,
-          height: 200
-        })
-      },
-      {
-        type: 'category', createDefault: () => ({
-          id: crypto.randomUUID(),
-          type: 'category',
-          name: '热门类目组件',
-          title: '热门类目',
-          bigImage: { url: 'https://picsum.photos/300/300?random=11', link: '#' },
-          smallImages: [
-            { url: 'https://picsum.photos/100/100?random=12', link: '#', text: '类目1' },
-            { url: 'https://picsum.photos/100/100?random=13', link: '#', text: '类目2' },
-            { url: 'https://picsum.photos/100/100?random=14', link: '#', text: '类目3' },
-            { url: 'https://picsum.photos/100/100?random=15', link: '#', text: '类目4' },
-            { url: 'https://picsum.photos/100/100?random=16', link: '#', text: '类目5' },
-            { url: 'https://picsum.photos/100/100?random=17', link: '#', text: '类目6' }
-          ],
-          width: 450,
-          height: 300
-        })
-      },
-      {
-        type: 'productRank', createDefault: () => ({
-          id: crypto.randomUUID(),
-          type: 'productRank',
-          name: '商品排行组件',
-          title: '商品排行榜',
-          subtitle: '热门商品推荐',
-          dataSource: 'ranking',
-          buttonText: '查看全部',
-          buttonLink: '#',
-          width: 750,
-          height: 350
-        })
-      },
-      {
-        type: 'productGroup', createDefault: () => ({
-          id: crypto.randomUUID(),
-          type: 'productGroup',
-          name: '商品分组组件',
-          title: '商品分类',
-          groups: [
-            {
-              title: '分类一',
-              images: [
-                { url: 'https://picsum.photos/200/200?random=18', link: '#' },
-                { url: 'https://picsum.photos/200/200?random=19', link: '#' },
-                { url: 'https://picsum.photos/200/200?random=20', link: '#' }
-              ]
-            },
-            {
-              title: '分类二',
-              images: [
-                { url: 'https://picsum.photos/200/200?random=21', link: '#' },
-                { url: 'https://picsum.photos/200/200?random=22', link: '#' }
-              ]
-            }
-          ],
-          buttonText: '全部商品',
-          buttonLink: '#',
-          width: 750,
-          height: 400
-        })
-      },
-      {
-        type: 'container', createDefault: () => ({
-          id: crypto.randomUUID(),
-          type: 'container',
-          name: '容器组件',
-          children: []
-        })
-      }
-    ].find(t => t.type === componentType);
-
-    if (template) {
-      const newComponent = template.createDefault();
+    const newComponent = getDefaultComponentData(componentType) as Component;
+    if (newComponent) { 
       componentStore.addComponent(newComponent as any);
       componentStore.selectComponent(newComponent.id);
     }
@@ -324,13 +223,15 @@ function selectComponent(id: string) {
   /* 确保组件在各种状态下保持一致的布局 */
   box-sizing: border-box;
   
+  &:first-of-type {
+    margin-top: 6px;
+  }
   &.selected {
     /* 更醒目的选中效果 */
     outline: 2px solid #3b82f6;
     outline-offset: 3px;
     background-color: rgba(59, 130, 246, 0.05);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-    transform: translateY(-1px);
   }
   
   &:hover:not(.selected) {
@@ -350,5 +251,21 @@ function selectComponent(id: string) {
 
 .sortable-drag {
   transform: rotate(5deg);
+}
+.fixed-box {
+  position: absolute;
+  left: 0;
+  /* top: calc(100% - 32px - 28px); */
+  bottom: 0;
+  z-index: 1000;
+}
+.page-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  z-index: 0;
+  display: block;
 }
 </style>

@@ -5,7 +5,6 @@
     <!-- 尺寸与间距 -->
     <div class="style-section">
       <h4 class="text-sm font-medium mb-2">尺寸与间距</h4>
-      
       <!-- 外边距 -->
       <div class="mb-3">
         <label class="block text-sm mb-1">外边距 (Margin)</label>
@@ -177,7 +176,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, effect } from 'vue';
+import { ref, watch } from 'vue';
 import { useComponentStore } from '../../stores/componentStore';
 import type { StyleProperties, Component } from '../../types/component';
 
@@ -267,7 +266,6 @@ function loadComponentStyles() {
   
   // 加载现有样式
   const style = component.value.style || {};
-  
   // 设置默认值，处理字符串格式的margin和padding
   margin.value = parseSpacing(style.margin as unknown as string);
   padding.value = parseSpacing(style.padding as unknown as string);

@@ -136,7 +136,7 @@ import { ref, onMounted, computed } from 'vue';
 import Sortable from 'sortablejs';
 import { v4 as uuidv4 } from 'uuid';
 import { useComponentStore } from '../../stores/componentStore';
-import type { TextComponent, ImageComponent, CarouselComponent, BannerComponent, CategoryComponent, ProductRankComponent, ProductGroupComponent, ContainerComponent } from '../../types/component';
+import type { TextComponent, ImageComponent, CarouselComponent, BannerComponent, CategoryComponent, ProductRankComponent, ProductGroupComponent, ContainerComponent, FloatingButtonComponent } from '../../types/component';
 import textIconUrl from '@/assets/images/text-icon.svg';
 import imgIconUrl from '@/assets/images/img-icon.svg';
 
@@ -188,8 +188,6 @@ const baseComponentTemplates = [
       type: 'text',
       name: '文本组件',
       content: '点击编辑文本',
-      fontSize: 16,
-      color: '#000000',
     })
   },
   {
@@ -232,6 +230,18 @@ const baseComponentTemplates = [
       type: 'container',
       name: '容器组件',
       children: []
+    })
+  },
+  {
+    type: 'floatingButton',
+    name: '底部悬浮按钮',
+    icon: imgIconUrl,
+    createDefault: (): FloatingButtonComponent => ({
+      id: uuidv4(),
+      type: 'floatingButton',
+      name: '底部悬浮按钮',
+      content: '点击按钮',
+      fixed: true,
     })
   }
 ];
@@ -419,6 +429,7 @@ function getIconClass(componentType: string): string {
     image: 'bg-purple-100 text-purple-600',
     carousel: 'bg-pink-100 text-pink-600',
     container: 'bg-indigo-100 text-indigo-600',
+    floatingButton: 'bg-orange-100 text-orange-600',
     banner: 'bg-green-100 text-green-600',
     category: 'bg-amber-100 text-amber-600',
     productRank: 'bg-red-100 text-red-600',

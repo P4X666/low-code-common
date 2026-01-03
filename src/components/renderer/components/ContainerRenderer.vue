@@ -51,6 +51,7 @@ import BannerRenderer from './BannerRenderer.vue';
 import CategoryRenderer from './CategoryRenderer.vue';
 import ProductRankRenderer from './ProductRankRenderer.vue';
 import ProductGroupRenderer from './ProductGroupRenderer.vue';
+import FloatingButtonRenderer from './FloatingButtonRenderer.vue';
 import { parseSpacing } from '@/utils/common';
 
 const props = defineProps<{
@@ -117,6 +118,8 @@ function getChildComponentByType(type: string) {
       return ProductRankRenderer;
     case 'productGroup':
       return ProductGroupRenderer;
+    case 'floatingButton':
+      return FloatingButtonRenderer;
     default:
       return null;
   }
@@ -237,7 +240,6 @@ function selectComponent(id: string | MouseEvent) {
     outline-offset: 3px;
     background-color: rgba(59, 130, 246, 0.05);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
-    transform: translateY(-1px);
   }
 }
 
@@ -281,7 +283,6 @@ function selectComponent(id: string | MouseEvent) {
     outline-offset: 3px;
     background-color: rgba(59, 130, 246, 0.1);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-    transform: translateY(-1px);
   }
   
   &:hover:not(.selected) {

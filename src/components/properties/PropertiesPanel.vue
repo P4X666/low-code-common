@@ -18,7 +18,7 @@
           />
         </div>
         
-        <div v-if="selectedComponent.type !== 'carousel' && selectedComponent.type !== 'text'" class="mb-2">
+        <div v-if="selectedComponent.type !== 'carousel' && selectedComponent.type !== 'text' && selectedComponent.type !== 'floatingButton'" class="mb-2">
           <label class="block text-sm font-medium mb-1">链接</label>
           <input 
             type="text" 
@@ -43,6 +43,23 @@
             placeholder="在此输入文本内容，可包含变量引用如${api.data.city}"
           ></textarea>
         </div>
+      </div>
+      
+      <!-- 底部悬浮按钮组件特有属性 -->
+      <div v-if="selectedComponent.type === 'floatingButton'" class="mb-4">
+        <h3 class="text-lg font-medium mb-2">底部悬浮按钮属性</h3>
+        
+        <div class="mb-2">
+          <label class="block text-sm font-medium mb-1">内容</label>
+          <textarea 
+            :value="floatingButtonContent" 
+            @input="updateFloatingButtonContent"
+            class="w-full px-3 py-2 border rounded"
+            rows="2"
+            placeholder="在此输入按钮文本内容"
+          ></textarea>
+        </div>
+
       </div>
       
       <!-- 图片组件特有属性 -->
@@ -587,6 +604,21 @@ const contentValue = computed(() => {
 // 更新content属性
 const updateContent = (event: any) => {
   if (!selectedComponent.value || selectedComponent.value.type !== 'text') return;
+  const newValue = (event.target as HTMLInputElement).value;
+  // 直接设置为字符串，不经过变量处理
+  selectedComponent.value.content = newValue;
+  // 直接更新组件，不调用updateComponent以避免过度解析
+  componentStore.updateComponent(selectedComponent.value.id, { ...selectedComponent.value });
+};
+
+const floatingButtonContent = computed(() => {
+  if (!selectedComponent.value || selectedComponent.value.type !== 'floatingButton') return '';
+  return selectedComponent.value.content || '';
+});
+
+// 更新floatingButtonContent属性
+const updateFloatingButtonContent = (event: any) => {
+  if (!selectedComponent.value || selectedComponent.value.type !== 'floatingButton') return;
   const newValue = (event.target as HTMLInputElement).value;
   // 直接设置为字符串，不经过变量处理
   selectedComponent.value.content = newValue;

@@ -10,3 +10,4 @@
 - daisyui
 - Tailwind CSS
 - Less
+3. 始终采用中文回答

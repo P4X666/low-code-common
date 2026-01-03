@@ -27,13 +27,19 @@ export interface StyleProperties {
   textAlign?: 'left' | 'center' | 'right' | 'justify';
   lineHeight?: number;
   letterSpacing?: number;
+  position?: 'absolute' | 'relative' | 'fixed' | 'static';
+  top?: number | string;
+  right?: number | string;
+  bottom?: number | string;
+  left?: number | string;
+  width?: number | string;
 }
 
 export type ComponentBaseEventType = 'pageJump' | 'apiRequest' | 'none';
 
 export interface ComponentBase {
   id: string;
-  type: 'text' | 'image' | 'carousel' | 'banner' | 'category' | 'productRank' | 'productGroup' | 'container';
+  type: 'text' | 'image' | 'carousel' | 'banner' | 'category' | 'productRank' | 'productGroup' | 'container' | 'floatingButton';
   name: string;
   customId?: string; // 用户自定义ID
   customName?: string; // 用户自定义名称
@@ -44,10 +50,17 @@ export interface ComponentBase {
   /** 接口请求路径 */
   apiRequestPath?: string;
   style?: StyleProperties;
+  fixed?: boolean; // 是否悬浮
 }
 
 export interface TextComponent extends ComponentBase {
   type: 'text';
+  content: string;
+}
+
+// 底部悬浮按钮组件
+export interface FloatingButtonComponent extends ComponentBase {
+  type: 'floatingButton';
   content: string;
 }
 
@@ -143,7 +156,9 @@ export interface ContainerComponent extends ComponentBase {
   children?: string[]; // 子组件ID列表
 }
 
-export type BaseComponent = TextComponent | ImageComponent | CarouselComponent | ContainerComponent
+export type BaseComponent = TextComponent | ImageComponent | CarouselComponent | ContainerComponent | FloatingButtonComponent
 export type BusinessComponent = BannerComponent | CategoryComponent | ProductRankComponent | ProductGroupComponent;
 
 export type Component = BaseComponent | BusinessComponent;
+
+export type ComponentType = Component['type'];
