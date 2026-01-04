@@ -255,9 +255,8 @@ function selectComponent(id: string) {
 .fixed-box {
   position: absolute;
   left: 0;
-  /* top: calc(100% - 32px - 28px); */
   bottom: 0;
-  z-index: 1000;
+  z-index: 100;
 }
 .page-bg {
   position: absolute;
