@@ -1,9 +1,8 @@
 import { defineStore } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
+import { parseSpacing } from '@/utils/common';
 import type { Component, StyleProperties } from '../types/component';
 import { useAPIStore } from './apiStore';
-import { clone } from 'radash';
-import { parseSpacing } from '@/utils/common';
 
 interface PageConfig {
   title: string;
@@ -187,12 +186,15 @@ export const useComponentStore = defineStore('component', {
 
     // 保存项目为JSON
     saveProject() {
-      const components = clone(this.components);
-      components.forEach(c => {
-        c.style = generateStyleToString(c.style);
-      })
+      const components = this.components;
+      const projectComponents = components.map(c => {
+        return {
+          ...c,
+          style: generateStyleToString(c.style)
+        };
+      });
       const projectData = {
-        components,
+        components: projectComponents,
         pageConfig: this.pageConfig,
         apiVariables: useAPIStore().getAllApiVariables,
         version: '1.0.0',
