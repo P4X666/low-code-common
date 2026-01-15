@@ -253,9 +253,9 @@ function selectComponent(id: string) {
   transform: rotate(5deg);
 }
 .fixed-box {
-  position: absolute;
+  position: sticky;
   left: 0;
-  bottom: 0;
+  top: calc(100% - 32px - 28px);
   z-index: 100;
 }
 .page-bg {

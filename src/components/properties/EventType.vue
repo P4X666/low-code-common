@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
 import { ComponentBaseEventType } from '@/types/component'
 import { useAPIStore } from '@/stores/apiStore'
@@ -64,9 +64,12 @@ const getSelectedComponent = () => {
 
 const componentStore = useComponentStore()
 const selectedComponent = ref(getSelectedComponent())
-const apiVariables = useAPIStore().getAllApiVariables
+const apiStore = useAPIStore()
 
-const apiRequestNames = Object.keys(apiVariables)
+// 使用计算属性，当API变量变化时自动更新
+const apiRequestNames = computed(() => {
+  return Object.keys(apiStore.getAllApiVariables)
+})
 
 onMounted(() => {
   selectedComponent.value = getSelectedComponent()
