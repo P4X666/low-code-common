@@ -1,56 +1,70 @@
 <template>
   <div class="carousel-component" :class="{ 'selected': isSelected }" @click="selectComponent" :style="componentStyles">
     <div class="relative overflow-hidden">
-      <!-- 轮播图容器 -->
-      <div class="carousel" :style="{ width: `${component.width}px`, height: `${component.height}px` }">
-        <!-- 轮播项容器 -->
-        <div class="carousel-inner">
-          <!-- 轮播项 -->
-          <div 
-            v-for="(image, index) in component.images" 
-            :key="index" 
-            :class="['carousel-item', { 
-              'active': index === activeIndex,
-              'prev': index === (activeIndex - 1 + component.images.length) % component.images.length,
-              'next': index === (activeIndex + 1) % component.images.length
-            }]"
-          >
-            <a v-if="image.link" :href="image.link" target="_blank" class="block w-full h-full">
-              <img :src="image.url" :alt="`Slide ${index + 1}`" class="w-full h-full object-cover" />
-            </a>
-            <img v-else :src="image.url" :alt="`Slide ${index + 1}`" class="w-full h-full object-cover" />
-          </div>
+      <!-- 使用daisyui的carousel组件 -->
+      <div 
+        class="carousel w-full" 
+        :class="{
+          'carousel-center': true,
+          'carousel-animate-slide': component.transitionEffect === 'slide',
+          'carousel-animate-fade': component.transitionEffect === 'fade',
+          'w-full': true
+        }"
+        :style="{ width: `${component.width}px`, height: `${component.height}px` }"
+      >
+        <!-- 轮播项 -->
+        <div 
+          v-for="(image, index) in component.images" 
+          :key="index" 
+          class="carousel-item"
+          :class="{ 'active': index === activeIndex }"
+        >
+          <a v-if="image.link" :href="image.link" target="_blank" class="block w-full h-full">
+            <img 
+              :src="image.url" 
+              :alt="`Slide ${index + 1}`" 
+              class="w-full h-full object-cover" 
+              @error="handleImageError($event, image)"
+            />
+          </a>
+          <img 
+            v-else 
+            :src="image.url" 
+            :alt="`Slide ${index + 1}`" 
+            class="w-full h-full object-cover" 
+            @error="handleImageError($event, image)"
+          />
         </div>
         
         <!-- 指示器 -->
-        <div v-if="component.showIndicators !== false && component.images.length > 1" class="carousel-indicators">
+        <div v-if="component.showIndicators !== false && component.images.length > 1" class="carousel-indicators absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
           <button
             v-for="(image, index) in component.images"
             :key="index"
-            :class="['indicator', { 'active': index === activeIndex }]"
+            class="indicator border-2 border-white w-3 h-3 rounded-full mx-1"
+            :class="{ 'bg-white': index === activeIndex }"
             @click.stop="goToSlide(index)"
             :title="`跳转到第${index + 1}张`"
           ></button>
         </div>
-        
-        <!-- 控制按钮 -->
-        <div v-if="component.showControls !== false && component.images.length > 1" class="carousel-control">
-          <button 
-            class="control-btn prev"
-            @click.stop="prevSlide"
-            title="上一张"
-          >
-            &lt;
-          </button>
-          <button 
-            class="control-btn next"
-            @click.stop="nextSlide"
-            title="下一张"
-          >
-            &gt;
-          </button>
-        </div>
       </div>
+      <!-- 控制按钮 -->
+      <button 
+        v-if="component.showControls !== false && component.images.length > 1" 
+        class="btn btn-circle absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white z-10"
+        @click.stop="prevSlide"
+        title="上一张"
+      >
+        ❮
+      </button>
+      <button 
+        v-if="component.showControls !== false && component.images.length > 1" 
+        class="btn btn-circle absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white z-10"
+        @click.stop="nextSlide"
+        title="下一张"
+      >
+        ❯
+      </button>
     </div>
   </div>
 </template>
@@ -87,13 +101,16 @@ function selectComponent(event: MouseEvent) {
   componentStore.selectComponent(props.component.id);
 }
 
-// 手动管理轮播图的active状态
+// 手动管理轮播图的active状态，用于控制指示器和过渡效果
 const activeIndex = ref(0);
 let intervalId: number | null = null;
 
 // 监听图片变化，重置active索引
-watch(() => props.component.images, () => {
-  activeIndex.value = 0;
+watch(() => props.component.images, (newImages, oldImages) => {
+  // 只有当图片数量发生变化时才重置activeIndex，避免编辑图片URL时重置
+  if (newImages.length !== oldImages?.length) {
+    activeIndex.value = 0;
+  }
 });
 
 // 监听autoplay和interval变化，重置自动播放
@@ -117,19 +134,29 @@ function startAutoplay() {
   }
 }
 
-// 切换到指定索引
-function goToSlide(index: number) {
-  activeIndex.value = index;
+// 图片加载错误处理
+function handleImageError(event: Event, image: any) {
+  // 设置默认占位图片
+  const imgElement = event.target as HTMLImageElement;
+  imgElement.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23f3f4f6"/%3E%3Ctext x="50" y="50" font-size="12" fill="%239ca3af" text-anchor="middle" dy=".3em"%3E图片加载失败%3C/text%3E%3C/svg%3E';
 }
 
 // 上一张
 function prevSlide() {
+  if (props.component.images.length === 0) return;
   activeIndex.value = (activeIndex.value - 1 + props.component.images.length) % props.component.images.length;
 }
 
 // 下一张
 function nextSlide() {
+  if (props.component.images.length === 0) return;
   activeIndex.value = (activeIndex.value + 1) % props.component.images.length;
+}
+
+// 切换到指定索引
+function goToSlide(index: number) {
+  if (index < 0 || index >= props.component.images.length) return;
+  activeIndex.value = index;
 }
 
 onMounted(() => {
@@ -150,103 +177,72 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
+/* 选中状态样式 */
+.carousel-component.selected {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* 轮播图容器基础样式 */
 .carousel {
   border-radius: 4px;
   overflow: hidden;
   position: relative;
 }
 
-.carousel-inner {
+/* 轮播项基础样式 */
+.carousel-item {
   position: relative;
+  display: none;
   width: 100%;
   height: 100%;
-}
-
-.carousel-item {
-  position: absolute;
-  inset: 0;
   transition: all 0.5s ease;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateX(100%);
-  z-index: 0;
-
-  &.active {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(0);
-    z-index: 2;
-  }
-
-  // 上一个和下一个状态，用于首尾衔接效果
-  &.prev {
-    transform: translateX(-100%);
-    z-index: 1;
-  }
-
-  &.next {
-    transform: translateX(100%);
-    z-index: 1;
-  }
 }
 
-/* 指示器样式 */
-.carousel-indicators {
-  position: absolute;
-  bottom: 10px;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  gap: 5px;
+/* 当前活动轮播项样式 */
+.carousel-item.active {
+  display: block;
 }
 
-.indicator {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.5);
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+/* 确保图片正确显示 */
+.carousel-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 0.5s ease;
+}
 
-  &.active {
-    background-color: white;
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .carousel {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16/9;
+  }
+  
+  .btn-circle {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+  
+  .indicator {
+    width: 6px;
+    height: 6px;
   }
 }
 
-/* 控制按钮样式 */
-.carousel-control {
-  position: relative;
-}
-
-.control-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 30px;
-  height: 30px;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 10;
-}
-
-.carousel:hover .control-btn {
-  opacity: 1;
-}
-
-.control-btn.prev {
-  left: 10px;
-}
-
-.control-btn.next {
-  right: 10px;
+@media (max-width: 480px) {
+  .btn-circle {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+  
+  .indicator {
+    width: 5px;
+    height: 5px;
+    margin: 0 2px;
+  }
 }
 </style>
