@@ -18,7 +18,7 @@
           />
         </div>
         
-        <div v-if="selectedComponent.type !== 'carousel' && selectedComponent.type !== 'text' && selectedComponent.type !== 'floatingButton'" class="mb-2">
+        <!-- <div v-if="selectedComponent.type !== 'carousel' && selectedComponent.type !== 'text' && selectedComponent.type !== 'floatingButton'" class="mb-2">
           <label class="block text-sm font-medium mb-1">链接</label>
           <input 
             type="text" 
@@ -26,7 +26,7 @@
             class="w-full px-3 py-2 border rounded"
             @change="updateComponent"
           />
-        </div>
+        </div> -->
       </div>
       
       <!-- 文本组件特有属性 -->

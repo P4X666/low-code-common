@@ -148,11 +148,6 @@ onUnmounted(() => {
 .carousel-component {
   padding: 8px;
   cursor: pointer;
-
-  &.selected {
-    outline: 2px solid #3b82f6;
-    background-color: rgba(59, 130, 246, 0.1);
-  }
 }
 
 .carousel {

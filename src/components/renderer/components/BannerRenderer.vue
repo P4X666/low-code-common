@@ -6,7 +6,7 @@
         <template v-if="component.images && component.images.length > 0">
           <div v-for="(image, index) in component.images" :key="index"
             class="banner-image-wrapper">
-            <img :src="image.url || 'https://zara-cms.oss-cn-shanghai.aliyuncs.com/2025/09/ba4164590d974581a21e24db41a97708.png'" :alt="image.text || `Banner ${index + 1}`"
+            <img :src="image.url" :alt="image.text || `Banner ${index + 1}`"
               class="banner-image w-full h-full object-cover" />
             <span v-if="image.text" class="banner-image-text">{{ image.text }}</span>
           </div>

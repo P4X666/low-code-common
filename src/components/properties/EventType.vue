@@ -2,7 +2,7 @@
   <div class="mb-4">
     <h3 class="text-lg font-medium mb-2">事件设置</h3>
     <div class="mb-2">
-      <label class="block text-sm font-medium mb-1">选择事件类型</label>
+      <label class="block text-sm font-medium mb-1">选择触发事件类型</label>
       <select 
         :value="selectedComponent.eventType || 'none'" 
         @change="updateComponent" 
